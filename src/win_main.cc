@@ -145,10 +145,16 @@ void table::event_callback2()
 		break;
 	case CONTEXT_CELL:
 		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1) {
-			if (C == 1 && rowdata[R].cols[5][0] == 'd') {
-				update_path(rowdata[R].cols[1]);
-				load_dir();
-				redraw();
+			if (C == 1) {
+				if (rowdata[R].cols[5][0] == 'd') {
+					update_path(rowdata[R].cols[1]);
+					load_dir();
+					redraw();
+				} else {
+					system((string("kate ") +
+						fs_path.c_str() + "/" +
+						rowdata[R].cols[1]).c_str());
+				}
 			}
 		}
 		break;
@@ -310,7 +316,7 @@ win_main::win_main()
 	s.width = 800;
 	s.heigth = 600;
 
-	w = make_shared<Fl_Window>(s.width, s.heigth, "mdm");
+	w = make_shared<Fl_Window>(s.width, s.heigth, "mfm");
 	t = make_shared<table>(2, 12, s.width - 4, 586);
 
 	t->tooltip("Use mouse or Shift + Arrow Keys to make selections.\n"
