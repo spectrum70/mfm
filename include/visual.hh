@@ -1,5 +1,5 @@
-#ifndef __visual_hh
-#define __visual_hh
+#ifndef __visual_hh__
+#define __visual_hh__
 
 struct pos {
 	int x;
@@ -11,4 +11,4 @@ struct sz {
 	int heigth;
 };
 
-#endif /* __visual_hh */
+#endif /* __visual_hh__ */

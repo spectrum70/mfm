@@ -1,12 +1,12 @@
-#ifndef __win_main_hh
-#define __win_main_hh
+#ifndef __win_main_hh__
+#define __win_main_hh__
 
 #include "visual.hh"
 #include <memory>
 
-using namespace std;
+using std::shared_ptr;
 
-class table;
+class table_files;
 class Fl_Window;
 
 struct win_main {
@@ -18,7 +18,7 @@ private:
 	sz s;
 
 	shared_ptr<Fl_Window> w;
-	shared_ptr<table> t;
+	shared_ptr<table_files> t;
 };
 
-#endif /* __win_main_hh */
+#endif /* __win_main_hh__ */

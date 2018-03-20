@@ -1,5 +1,5 @@
-#ifndef __path_hh_
-#define __path_hh_
+#ifndef __path_hh__
+#define __path_hh__
 
 #include <string>
 #include <experimental/filesystem>
@@ -18,4 +18,4 @@ protected:
 
 
 
-#endif /* __path_hh_ */
+#endif /* __path_hh__ */
