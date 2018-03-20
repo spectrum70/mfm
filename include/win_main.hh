@@ -7,6 +7,7 @@
 using std::shared_ptr;
 
 class table_files;
+class toolbar;
 class Fl_Window;
 
 struct win_main {
@@ -19,6 +20,7 @@ private:
 
 	shared_ptr<Fl_Window> w;
 	shared_ptr<table_files> t;
+	shared_ptr<toolbar> tb;
 };
 
 #endif /* __win_main_hh__ */
