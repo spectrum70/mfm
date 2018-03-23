@@ -12,10 +12,10 @@ struct path {
 
 	void update_path(const string &name);
 
+	string get_cur_path() { return fs_path; }
+
 protected:
 	experimental::filesystem::path fs_path;
 };
-
-
 
 #endif /* __path_hh__ */

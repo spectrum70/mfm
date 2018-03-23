@@ -22,49 +22,91 @@
 
 #include "toolbar.hh"
 #include "pixmaps.hh"
+#include "table_files.hh"
 
+#include <string>
+
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Pixmap.H>
 
 using std::make_shared;
+using std::string;
 
-constexpr int butt_size = 24;
-
-void Open_CB(Fl_Widget*,void*) {
-	printf("Open..\n");
-}
+constexpr int butt_size = 28;
 
 enum {
-	trash_pixmap
+	id_trash,
+	id_copy,
+	id_cut,
+	id_paste
 };
 
-toolbar::toolbar(int X,int Y,int W,int H)  :Fl_Pack(X, Y, W, H)
+toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
+: Fl_Pack(X, Y, W, H), a(ptrs)
 {
 	type(Fl_Pack::HORIZONTAL);
-	box(FL_UP_FRAME);
-	spacing(4);
 
-	p[trash_pixmap] = make_shared<Fl_Pixmap>(xpm_icon_trashcan);
+	box(FL_NO_BOX);
+	spacing(3);
 
-	add_button(0, p[trash_pixmap], Open_CB);
+	p[id_trash] = make_shared<Fl_Pixmap>(xpm_icon_trash);
+	p[id_copy] = make_shared<Fl_Pixmap>(xpm_icon_copy);
+	p[id_cut] = make_shared<Fl_Pixmap>(xpm_icon_cut);
+	p[id_paste] = make_shared<Fl_Pixmap>(xpm_icon_paste);
+
+	add_button(0, p[id_trash]);
+	add_button(0, p[id_copy]);
+	add_button(0, p[id_cut]);
+	add_button(0, p[id_paste]);
 
 	end();
 }
 
-void toolbar::add_button(const char *name, shared_ptr<Fl_Pixmap> &img,
-				Fl_Callback *cb, void *data)
+int toolbar::handle(int event)
 {
+	Fl_Group::handle(event);
+
+	switch(event) {
+	case FL_PUSH:
+		printf("event %d button %08x\n", event, Fl::pushed());
+		if (Fl::pushed() == b[id_trash].get()) {
+			string sel = a.tf->get_selected();
+
+			if (sel == "")
+				return 1;
+
+			a.tf->delete_selected_file();
+		}
+		break;
+	case FL_RELEASE:
+	case FL_DRAG:
+	case FL_MOVE:
+	case FL_FOCUS:
+	case FL_UNFOCUS:
+		return 1;
+	default:
+		return Fl_Pack::handle(event);
+	}
+
+	return 1;
+}
+
+void toolbar::add_button(const char *name, shared_ptr<Fl_Pixmap> &img)
+{
+	static int idx = 0;
 	begin();
 
-	b[0] = make_shared<Fl_Button>(0, 0, butt_size, butt_size);
-	b[0]->box(FL_FLAT_BOX);
-	b[0]->clear_visible_focus();
+	b[idx] = make_shared<Fl_Button>(0, 0, butt_size, butt_size);
+	b[idx]->box(FL_THIN_UP_BOX);
+	b[idx]->clear_visible_focus();
 	if (name)
-		b[0]->tooltip(name);
+		b[idx]->tooltip(name);
 	if (img)
-		b[0]->image(img.get());
-	if (cb)
-		b[0]->callback(cb, data);
+		b[idx]->image(img.get());
+
+	idx++;
 
 	end();
 }

@@ -20,34 +20,34 @@
  *
  */
 
-#include "path.hh"
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
+#include "input.hh"
+#include "table_files.hh"
 
-path::path()
+#include <FL/Fl.H>
+#include <stdio.h>
+
+input::input(int X, int Y, int W, int H, app &ptrs)
+: Fl_Input(X, Y, W, H), a(ptrs)
 {
-	struct passwd *pw = getpwuid(getuid());
-	const char *homedir = pw->pw_dir;
+	textsize(11);
+	textfont(FL_HELVETICA);
 
-	fs_path = homedir;
+	when(FL_WHEN_ENTER_KEY_ALWAYS | FL_WHEN_CHANGED);
+	callback(cb_input, (void*)this);
 }
 
-path::path(const string &path)
-{
-	fs_path = path;
+void input::cb_input(Fl_Widget *w, void *data) {
+	((input *)data)->cb_event();
 }
 
-void path::update_path(const string &name)
+void input::cb_event()
 {
-	if (name == "..") {
-		if (fs_path.has_parent_path())
-			fs_path = fs_path.parent_path();
-	} else if (name != ".") {
-		if (fs_path != "/")
-			fs_path += "/";
-		fs_path += name;
+	if (Fl::event() == FL_KEYDOWN) {
+		if (Fl::event_key(FL_Enter)) {
+			a.tf->load_dir(value());
+			return;
+		}
+	} else if (Fl::event() == FL_RELEASE) {
+		a.tf->load_dir(value());
 	}
 }
-
-

@@ -22,32 +22,42 @@
 
 #include "win_main.hh"
 #include "table_files.hh"
+#include "table_locations.hh"
 #include "toolbar.hh"
+#include "input.hh"
 
-#include <FL/Fl_Window.H>
+#include <globals.hh>
 
 constexpr int window_border = 2;
 constexpr int command_bar_height = 30;
+constexpr int locations_width = 160;
 
-win_main::win_main()
+win_main::win_main() : Fl_Window(800, 600, "mfm")
 {
 	s.width = 800;
 	s.heigth = 600;
 
-	w = make_shared<Fl_Window>(s.width, s.heigth, "mfm");
+	begin();
 
-	w->begin();
-	t = make_shared<table_files>(window_border, command_bar_height + 2,
-				s.width - (window_border * 2),
-				s.heigth - command_bar_height
-				- 2 - window_border);
+	ptrs.tb = make_shared<toolbar>(0, 2, s.width, command_bar_height, ptrs);
 
-	w->resizable(*t);
+	ptrs.tf = make_shared<table_files>(window_border + locations_width,
+			command_bar_height + 2 + 20,
+			s.width - (window_border * 2) - locations_width,
+			s.heigth - command_bar_height - 2 - window_border,
+			ptrs);
 
-	tb = make_shared<toolbar>(0, 0, w->w(), 28);
+	ptrs.i = make_shared<input>(2, 32, s.width - 4, 18, ptrs);
 
-	w->end();
-	w->show();
+	ptrs.tl = make_shared<table_locations>(window_border,
+		command_bar_height + 2 + 20, locations_width,
+		s.heigth - command_bar_height - 2 - window_border, ptrs);
+
+	resizable(*ptrs.tl);
+	end();
+	show();
+
+	ptrs.tf->load_dir();
 }
 
 int win_main::run()

@@ -20,8 +20,12 @@
  *
  */
 
+#include "table_files.hh"
+#include "input.hh"
+
+#include <unistd.h>
+
 #include <FL/fl_draw.H>
-#include <table_files.hh>
 
 constexpr int font_face_header = FL_HELVETICA;
 constexpr int font_size_header = 11;
@@ -40,8 +44,8 @@ static const char *header[] = {
 		0
 };
 
-table_files::table_files(int x, int y, int w, int h)
-: path(), Fl_Table_Row(x, y, w, h), sort_reverse(0), sort_lastcol(0)
+table_files::table_files(int x, int y, int w, int h, app &ptrs)
+: path(), Fl_Table_Row(x, y, w, h), a(ptrs), sort_reverse(0), sort_lastcol(0)
 {
 	row_resize(0);
 
@@ -53,11 +57,7 @@ table_files::table_files(int x, int y, int w, int h)
 	selection_color(FL_YELLOW);
 	color(FL_WHITE);
 
-	load_dir();
-	/* important, after first load dir */
-	row_height_all(14);
-
-	callback(event_callback, (void*)this);
+	callback(__event_callback, (void*)this);
 
 	end();
 }
@@ -86,10 +86,27 @@ void table_files::autowidth(int pad)
 	redraw();
 }
 
-void table_files::event_callback(Fl_Widget*, void *data)
-{ ((table_files*)data)->event_callback2(); }
+void table_files::__event_callback(Fl_Widget*, void *data)
+{ ((table_files*)data)->event_callback(); }
 
-void table_files::event_callback2()
+void table_files::open_file(string &file)
+{
+	static char s[512];
+	string file_path;
+
+	if (file.find(' ') != string::npos) {
+		file.insert(0, "'");
+		file.push_back('\'');
+	}
+
+	file_path = (string(fs_path) + "/" + file).c_str();
+
+	snprintf(s, sizeof s, "%s %s", "xdg-open", file_path.c_str());
+
+	system(s);
+}
+
+void table_files::event_callback()
 {
 	int R = callback_row();
 	int C = callback_col();
@@ -109,19 +126,22 @@ void table_files::event_callback2()
 		}
 		break;
 	case CONTEXT_CELL:
-		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1) {
-			if (C == 1) {
-				if (rowdata[R].cols[5][0] == 'd') {
-					update_path(rowdata[R].cols[1]);
-					load_dir();
-					redraw();
-				} else {
-					system((string("kate ") +
-						fs_path.c_str() + "/" +
-						rowdata[R].cols[1]).c_str());
-				}
+		if (Fl::event() != FL_RELEASE || Fl::event_button() != 1)
+			return;
+		if (C != 1)
+			return;
+		if (rowdata[R].cols[5][0] == 'd') {
+			update_path(rowdata[R].cols[1]);
+			load_dir();
+		} else {
+			if (rowdata[R].cols[1] != selected) {
+				selected = rowdata[R].cols[1];
+				return;
 			}
+			open_file(selected);
 		}
+		/* invalidating */
+		selected = "";
 		break;
 	}
 	default:
@@ -129,7 +149,14 @@ void table_files::event_callback2()
 	}
 }
 
-void table_files::load_dir()
+void table_files::delete_selected_file()
+{
+	unlink((string(fs_path) + "/" + selected).c_str());
+
+	load_dir();
+}
+
+void table_files::load_dir(const char *path)
 {
 	char s[512];
 	char n[16];
@@ -137,9 +164,14 @@ void table_files::load_dir()
 #define COLUMNS  9
 #define LS_OUT_COLS 11
 
-	const int remap[LS_OUT_COLS] = {5, 1, 6, 7, 2, 3, 0, 4, 1, 0, 0};
+	const int remap[LS_OUT_COLS] = {5, 0, 6, 7, 2, 3, 0, 4, 1, 0, 0};
 
 	rowdata.clear();
+
+	if (path)
+		fs_path = path;
+
+	a.i->value(fs_path.c_str());
 
 	strcpy(s, "ls -alh ");
 	strcat(s, fs_path.c_str());
@@ -161,18 +193,31 @@ void table_files::load_dir()
 		rc.resize(COLUMNS);
 
 		// Break the line
-		for(int t = 0 ; (t == 0) ? (ss = strtok(s, delim)):
-				(ss = strtok(NULL, delim)); t++) {
-			if (!t) {
+		for (int t = 0; t < LS_OUT_COLS; t++) {
+			if (t == 0) {
+				ss = strtok(s, delim);
 				sprintf(n, "%d", i);
 				rc[0] = strdup(n);
-			} else if (t == 5) {
+			} else if (t == 8) {
+				longname[0] = 0;
+				while (ss = strtok(NULL, delim)) {
+					if (longname[0] != 0)
+						strcat(longname, " ");
+					strcat(longname, ss);
+				}
+				ss = longname;
+			} else {
+				ss = strtok(NULL, delim);
+			}
+
+			if (t == 5) {
 				strcpy(n, ss);
 			} else if (t == 6) {
 				strcat(n, " ");
 				strcat(n, ss);
 				rc[remap[5]] = strdup(n);
 			}
+
 			if (remap[t])
 				rc[remap[t]] = (strdup(ss));
 		}
@@ -183,17 +228,20 @@ void table_files::load_dir()
 	// How many rows we loaded
 	rows((int)rowdata.size());
 
-	// Auto-calculate widths, with 20 pixel padding
+	/* important, after first load dir */
+	row_height_all(15);
+
+	// Auto-calculate widths, with 15 pixel padding
 	autowidth(15);
 }
 
 void table_files::draw_sort_arrow(int X, int Y, int W, int H)
 {
-	int xlft = X+(W-6)-8;
-	int xctr = X+(W-6)-4;
-	int xrit = X+(W-6)-0;
-	int ytop = Y+(H/2)-4;
-	int ybot = Y+(H/2)+4;
+	int xlft = X + (W - 6) - 8;
+	int xctr = X + (W - 6) - 4;
+	int xrit = X + (W - 6) - 0;
+	int ytop = Y + (H / 2) - 4;
+	int ybot = Y + (H / 2) + 4;
 
 	if (sort_reverse) {
 		// Engraved down arrow
@@ -237,7 +285,6 @@ void table_files::draw_cell(TableContext context,
 			}
 		}
 		fl_pop_clip();
-
 		return;
 	case CONTEXT_CELL: {
 		fl_push_clip(X, Y, W, H); {
@@ -253,7 +300,7 @@ void table_files::draw_cell(TableContext context,
 			fl_color(bgcolor);
 			fl_rectf(X, Y, W, H);
 			fl_font(font_face_row, font_size_row);
-			fl_color(FL_BLACK);
+			fl_color(15, 15, 15);
 			if (C == 1) {
 				if (rowdata[R].cols[5][0] == 'd')
 					fl_color(10, 10 , 230);
@@ -263,7 +310,7 @@ void table_files::draw_cell(TableContext context,
 				fl_color(0, 165 , 0);
 
 			fl_draw(s, X + 2, Y, W, H, FL_ALIGN_LEFT |
-					FL_ALIGN_BOTTOM);
+					FL_ALIGN_CENTER);
 			// Border
 			fl_color(250, 250, 250);
 			fl_rect(X, Y, W, H);

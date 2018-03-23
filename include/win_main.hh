@@ -2,25 +2,27 @@
 #define __win_main_hh__
 
 #include "visual.hh"
+#include "globals.hh"
 #include <memory>
+#include <FL/Fl_Window.H>
 
 using std::shared_ptr;
 
+class table_locations;
 class table_files;
 class toolbar;
-class Fl_Window;
+class input;
 
-struct win_main {
+struct win_main : public Fl_Window
+{
 	win_main();
 
 	int run();
+
 private:
 	pos p;
 	sz s;
-
-	shared_ptr<Fl_Window> w;
-	shared_ptr<table_files> t;
-	shared_ptr<toolbar> tb;
+	app ptrs;
 };
 
 #endif /* __win_main_hh__ */
