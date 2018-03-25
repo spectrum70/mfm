@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 #include <FL/fl_draw.H>
+#include <FL/fl_ask.H>
 
 constexpr int font_face_header = FL_HELVETICA;
 constexpr int font_size_header = 11;
@@ -49,7 +50,6 @@ table_files::table_files(int x, int y, int w, int h, app &ptrs)
 {
 	row_resize(0);
 
-	// Col init
 	col_header(1);
 	col_header_height(14);
 	col_resize(1);
@@ -58,6 +58,8 @@ table_files::table_files(int x, int y, int w, int h, app &ptrs)
 	color(FL_WHITE);
 
 	callback(__event_callback, (void*)this);
+
+	focus(this);
 
 	end();
 }
@@ -68,12 +70,15 @@ void table_files::autowidth(int pad)
 
 	// Initialize all column widths to header width
 	fl_font(font_face_header, font_size_header);
+
 	for ( int c = 0; header[c]; c++ ) {
 		w = 0;
 		fl_measure(header[c], w, h, 0);
 		col_width(c, w + pad);
 	}
+
 	fl_font(font_face_row, font_size_row);
+
 	for ( int r=0; r<(int)rowdata.size(); r++ ) {
 		for ( int c = 0; c < (int)rowdata[r].cols.size(); c++ ) {
 			w = 0;
@@ -85,9 +90,6 @@ void table_files::autowidth(int pad)
 	table_resized();
 	redraw();
 }
-
-void table_files::__event_callback(Fl_Widget*, void *data)
-{ ((table_files*)data)->event_callback(); }
 
 void table_files::open_file(string &file)
 {
@@ -126,6 +128,16 @@ void table_files::event_callback()
 		}
 		break;
 	case CONTEXT_CELL:
+		if (Fl::event() == FL_KEYDOWN) {
+			if (Fl::event_key() == FL_Up)
+				move_selection_up();
+			else if (Fl::event_key() == FL_Down)
+				move_selection_down();
+
+			selected = rowdata[R].cols[1];
+
+			return;
+		}
 		if (Fl::event() != FL_RELEASE || Fl::event_button() != 1)
 			return;
 		if (C != 1)
@@ -149,11 +161,60 @@ void table_files::event_callback()
 	}
 }
 
-void table_files::delete_selected_file()
+void table_files::move_selection_up()
 {
-	unlink((string(fs_path) + "/" + selected).c_str());
+	int row_top, col_left, row_bot, col_right;
+
+	get_selection(row_top, col_left, row_bot, col_right);
+
+	printf("row_top %d\n", row_top);
+
+	if (row_top < 0)
+		return;
+
+	select_row(row_top + 1, 0);
+	select_row(row_top, 1);
+
+	set_selection(row_top, col_left, row_bot, col_right);
+}
+
+void table_files::move_selection_down()
+{
+	int row_top, col_left, row_bot, col_right;
+
+	get_selection(row_top, col_left, row_bot, col_right);
+
+	printf("row_top %d\n", row_top);
+
+	select_row(row_top - 1, 0);
+	select_row(row_top, 1);
+	set_selection(row_top, col_left, row_bot, col_right);
+}
+
+void table_files::trash()
+{
+	string text = "delete <" + selected + "> ?";
+
+	if (fl_choice(text.c_str(), "Yes", "No", 0) == 0) {
+		unlink((string(fs_path) + "/" + selected).c_str());
+	}
 
 	load_dir();
+}
+
+void table_files::copy()
+{
+	//(string(fs_path) + "/" + selected).c_str());
+}
+
+void table_files::cut()
+{
+	//(string(fs_path) + "/" + selected).c_str());
+}
+
+void table_files::paste()
+{
+	//unlink((string(fs_path) + "/" + selected).c_str());
 }
 
 void table_files::load_dir(const char *path)

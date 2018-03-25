@@ -17,6 +17,11 @@ struct win_main : public Fl_Window
 {
 	win_main();
 
+	//static int __global_handler(int event, void *data)
+	//{ ()
+
+	int handle(int event);
+
 	int run();
 
 private:

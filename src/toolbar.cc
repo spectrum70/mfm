@@ -49,7 +49,7 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	type(Fl_Pack::HORIZONTAL);
 
 	box(FL_NO_BOX);
-	spacing(3);
+	spacing(0);
 
 	p[id_trash] = make_shared<Fl_Pixmap>(xpm_icon_trash);
 	p[id_copy] = make_shared<Fl_Pixmap>(xpm_icon_copy);
@@ -70,14 +70,13 @@ int toolbar::handle(int event)
 
 	switch(event) {
 	case FL_PUSH:
-		printf("event %d button %08x\n", event, Fl::pushed());
 		if (Fl::pushed() == b[id_trash].get()) {
 			string sel = a.tf->get_selected();
 
 			if (sel == "")
 				return 1;
 
-			a.tf->delete_selected_file();
+			a.tf->trash();
 		}
 		break;
 	case FL_RELEASE:
@@ -101,6 +100,8 @@ void toolbar::add_button(const char *name, shared_ptr<Fl_Pixmap> &img)
 	b[idx] = make_shared<Fl_Button>(0, 0, butt_size, butt_size);
 	b[idx]->box(FL_THIN_UP_BOX);
 	b[idx]->clear_visible_focus();
+
+	b[idx]->color(fl_rgb_color(120, 120, 120));
 	if (name)
 		b[idx]->tooltip(name);
 	if (img)

@@ -60,6 +60,37 @@ win_main::win_main() : Fl_Window(800, 600, "mfm")
 	ptrs.tf->load_dir();
 }
 
+int win_main::handle(int event)
+{
+	if (Fl::event() == FL_KEYDOWN) {
+		printf("win_main key down event\n");
+
+		switch (Fl::event_key()) {
+		case FL_Delete:
+			/* key pressed handled here */
+			ptrs.tf->trash();
+			break;
+		case FL_Enter: {
+			string selected = ptrs.tf->get_selected();
+			ptrs.tf->open_file(selected);
+			focus(ptrs.tf.get());
+			}
+			break;
+		case FL_Up:
+		case FL_Down:
+			/*
+			 * workaround, avoid arrow up/down to navigate on
+			 * path window
+			 * */
+			return 0;
+		}
+
+
+	}
+
+	return Fl_Window::handle(event);
+}
+
 int win_main::run()
 {
 	return Fl::run();
