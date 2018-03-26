@@ -103,7 +103,7 @@ void table_files::open_file(string &file)
 
 	file_path = (string(fs_path) + "/" + file).c_str();
 
-	snprintf(s, sizeof s, "%s %s", "xdg-open", file_path.c_str());
+	snprintf(s, sizeof s, "%s %s &", "xdg-open", file_path.c_str());
 
 	system(s);
 }
