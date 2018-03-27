@@ -8,7 +8,7 @@
 using std::shared_ptr;
 
 class Fl_Pixmap;
-class Fl_Button;
+class toolbar_button;
 
 constexpr int max_buttons = 4;
 
@@ -22,7 +22,7 @@ private:
 	int handle(int event);
 
 private:
-	shared_ptr<Fl_Button> b[max_buttons];
+	shared_ptr<toolbar_button> b[max_buttons];
 	shared_ptr<Fl_Pixmap> p[max_buttons];
 
 	app &a;

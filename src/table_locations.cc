@@ -34,6 +34,8 @@ constexpr int font_size_row = 11;
 table_locations::table_locations(int x, int y, int w, int h, app &ptrs)
 : Fl_Table_Row(x, y, w, h), a(ptrs)
 {
+	resizable(0);
+
 	row_resize(0);
 
 	// Col init
@@ -97,6 +99,7 @@ void table_locations::draw_cell(TableContext context,
 
 	switch (context) {
 	case CONTEXT_COL_HEADER:
+		col_width(0, 160);
 		fl_push_clip(X, Y, W, H); {
 			fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H,
 					FL_BACKGROUND_COLOR);

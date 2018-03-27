@@ -29,7 +29,7 @@
 #include <globals.hh>
 
 constexpr int window_border = 2;
-constexpr int command_bar_height = 30;
+constexpr int command_bar_height = 22;
 constexpr int locations_width = 160;
 
 win_main::win_main() : Fl_Window(800, 600, "mfm")
@@ -47,13 +47,15 @@ win_main::win_main() : Fl_Window(800, 600, "mfm")
 			s.heigth - command_bar_height - 2 - window_border,
 			ptrs);
 
-	ptrs.i = make_shared<input>(2, 32, s.width - 4, 18, ptrs);
+	ptrs.i = make_shared<input>(2, command_bar_height + 2,
+			s.width - 4, 18, ptrs);
 
 	ptrs.tl = make_shared<table_locations>(window_border,
 		command_bar_height + 2 + 20, locations_width,
 		s.heigth - command_bar_height - 2 - window_border, ptrs);
 
 	resizable(*ptrs.tl);
+	resizable(*ptrs.tf);
 	end();
 	show();
 
@@ -84,8 +86,6 @@ int win_main::handle(int event)
 			 * */
 			return 0;
 		}
-
-
 	}
 
 	return Fl_Window::handle(event);

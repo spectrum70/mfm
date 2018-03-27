@@ -34,7 +34,7 @@
 using std::make_shared;
 using std::string;
 
-constexpr int butt_size = 28;
+constexpr int butt_size = 20;
 
 enum {
 	id_trash,
@@ -42,6 +42,37 @@ enum {
 	id_cut,
 	id_paste
 };
+
+struct toolbar_button : public Fl_Button
+{
+	toolbar_button(int X, int Y, int W, int H);
+
+private:
+	int handle(int event);
+};
+
+toolbar_button::toolbar_button(int X, int Y, int W, int H)
+: Fl_Button(X, Y, W, H)
+{
+}
+
+int toolbar_button::handle(int event)
+{
+	Fl_Button::handle(event);
+
+	switch (event) {
+	case FL_ENTER:
+		color(fl_rgb_color(0xf0, 0xf0, 0xf0));
+		redraw();
+		break;
+	case FL_LEAVE:
+		color(FL_BACKGROUND_COLOR);
+		redraw();
+		break;
+	}
+
+	return 1;
+}
 
 toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 : Fl_Pack(X, Y, W, H), a(ptrs)
@@ -56,10 +87,10 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	p[id_cut] = make_shared<Fl_Pixmap>(xpm_icon_cut);
 	p[id_paste] = make_shared<Fl_Pixmap>(xpm_icon_paste);
 
-	add_button(0, p[id_trash]);
-	add_button(0, p[id_copy]);
-	add_button(0, p[id_cut]);
-	add_button(0, p[id_paste]);
+	add_button("trash", p[id_trash]);
+	add_button("copy", p[id_copy]);
+	add_button("cut", p[id_cut]);
+	add_button("paste", p[id_paste]);
 
 	end();
 }
@@ -78,7 +109,6 @@ int toolbar::handle(int event)
 
 			a.tf->trash();
 		}
-		break;
 	case FL_RELEASE:
 	case FL_DRAG:
 	case FL_MOVE:
@@ -97,11 +127,9 @@ void toolbar::add_button(const char *name, shared_ptr<Fl_Pixmap> &img)
 	static int idx = 0;
 	begin();
 
-	b[idx] = make_shared<Fl_Button>(0, 0, butt_size, butt_size);
-	b[idx]->box(FL_THIN_UP_BOX);
-	b[idx]->clear_visible_focus();
+	b[idx] = make_shared<toolbar_button>(0, 0, butt_size, butt_size);
+	b[idx]->box(FL_FLAT_BOX);
 
-	b[idx]->color(fl_rgb_color(120, 120, 120));
 	if (name)
 		b[idx]->tooltip(name);
 	if (img)
