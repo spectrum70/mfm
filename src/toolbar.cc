@@ -58,20 +58,18 @@ toolbar_button::toolbar_button(int X, int Y, int W, int H)
 
 int toolbar_button::handle(int event)
 {
-	Fl_Button::handle(event);
-
 	switch (event) {
 	case FL_ENTER:
 		color(fl_rgb_color(0xf0, 0xf0, 0xf0));
 		redraw();
-		break;
+		return 1;
 	case FL_LEAVE:
 		color(FL_BACKGROUND_COLOR);
 		redraw();
-		break;
+		return 1;
 	}
 
-	return 1;
+	Fl_Button::handle(event);
 }
 
 toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
@@ -108,15 +106,21 @@ int toolbar::handle(int event)
 				return 1;
 
 			a.tf->trash();
+		} else if (Fl::pushed() == b[id_copy].get()) {
+			printf("handle copy\n");
+			a.tf->copy();
+		} else if (Fl::pushed() == b[id_cut].get()) {
+			a.tf->cut();
+		} else if (Fl::pushed() == b[id_paste].get()) {
+			a.tf->paste();
 		}
+		return 1;
 	case FL_RELEASE:
 	case FL_DRAG:
 	case FL_MOVE:
 	case FL_FOCUS:
 	case FL_UNFOCUS:
-		return 1;
-	default:
-		return Fl_Pack::handle(event);
+		return 0;
 	}
 
 	return 1;

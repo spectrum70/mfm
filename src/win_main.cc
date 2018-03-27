@@ -65,8 +65,6 @@ win_main::win_main() : Fl_Window(800, 600, "mfm")
 int win_main::handle(int event)
 {
 	if (Fl::event() == FL_KEYDOWN) {
-		printf("win_main key down event\n");
-
 		switch (Fl::event_key()) {
 		case FL_Delete:
 			/* key pressed handled here */

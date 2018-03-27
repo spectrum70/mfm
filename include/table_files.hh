@@ -45,9 +45,11 @@ private:
 private:
 	vector<row> rowdata;
 	string selected;
+	string clip_op_src;
 	char longname[512];
 	int sort_reverse;
 	int sort_lastcol;
+	int cl_op;
 	app &a;
 };
 

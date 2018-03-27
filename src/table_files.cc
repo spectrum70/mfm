@@ -45,6 +45,12 @@ static const char *header[] = {
 		0
 };
 
+enum {
+	cl_op_none,
+	cl_op_copy,
+	cl_op_cut,
+};
+
 table_files::table_files(int x, int y, int w, int h, app &ptrs)
 : path(), Fl_Table_Row(x, y, w, h), a(ptrs), sort_reverse(0), sort_lastcol(0)
 {
@@ -167,8 +173,6 @@ void table_files::move_selection_up()
 
 	get_selection(row_top, col_left, row_bot, col_right);
 
-	printf("row_top %d\n", row_top);
-
 	if (row_top < 0)
 		return;
 
@@ -184,8 +188,6 @@ void table_files::move_selection_down()
 
 	get_selection(row_top, col_left, row_bot, col_right);
 
-	printf("row_top %d\n", row_top);
-
 	select_row(row_top - 1, 0);
 	select_row(row_top, 1);
 	set_selection(row_top, col_left, row_bot, col_right);
@@ -193,7 +195,7 @@ void table_files::move_selection_down()
 
 void table_files::trash()
 {
-	string text = "delete <" + selected + "> ?";
+	string text = "delete [ " + selected + " ] ?";
 
 	if (fl_choice(text.c_str(), "Yes", "No", 0) == 0) {
 		unlink((string(fs_path) + "/" + selected).c_str());
@@ -204,17 +206,45 @@ void table_files::trash()
 
 void table_files::copy()
 {
-	//(string(fs_path) + "/" + selected).c_str());
+	clip_op_src = string(fs_path) + "/" + selected;
+
+	cl_op = cl_op_copy;
+
+	focus(this);
 }
 
 void table_files::cut()
 {
-	//(string(fs_path) + "/" + selected).c_str());
+	clip_op_src = string(fs_path) + "/" + selected;
+
+	cl_op = cl_op_cut;
+
+	focus(this);
 }
 
 void table_files::paste()
 {
-	//unlink((string(fs_path) + "/" + selected).c_str());
+	string cmd;
+	string dest;
+	int x;
+
+	if ((x = clip_op_src.rfind('/')) != string::npos) {
+		dest = clip_op_src.substr(x + 1);
+	}
+
+	if (cl_op = cl_op_copy) {
+		cmd = "cp ";
+	} else if (cl_op = cl_op_cut) {
+		cmd = "mv ";
+	}
+
+	cmd += clip_op_src + " " + string(fs_path) + "/" + dest;
+
+	system(cmd.c_str());
+
+	load_dir();
+
+	focus(this);
 }
 
 void table_files::load_dir(const char *path)
