@@ -76,6 +76,24 @@ int win_main::handle(int event)
 			focus(ptrs.tf.get());
 			}
 			break;
+		case 'c':
+			if (Fl::get_key(FL_Control_L) ||
+					Fl::get_key(FL_Control_R)) {
+				ptrs.tf->copy();
+			}
+			break;
+		case 'v':
+			if (Fl::get_key(FL_Control_L) ||
+				Fl::get_key(FL_Control_R)) {
+				ptrs.tf->paste();
+			}
+			break;
+		case 'z':
+			if (Fl::get_key(FL_Control_L) ||
+				Fl::get_key(FL_Control_R)) {
+				ptrs.tf->cut();
+			}
+			break;
 		case FL_Up:
 		case FL_Down:
 			/*
@@ -84,6 +102,9 @@ int win_main::handle(int event)
 			 * */
 			return 0;
 		}
+
+
+
 	}
 
 	return Fl_Window::handle(event);

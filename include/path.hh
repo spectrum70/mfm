@@ -12,9 +12,11 @@ struct path {
 
 	void update_path(const string &name);
 
+	string get_home_path() { return user_home; }
 	string get_cur_path() { return fs_path; }
 
 protected:
+	string user_home;
 	experimental::filesystem::path fs_path;
 };
 

@@ -31,6 +31,7 @@ path::path()
 	const char *homedir = pw->pw_dir;
 
 	fs_path = homedir;
+	user_home = homedir;
 }
 
 path::path(const string &path)

@@ -21,12 +21,14 @@
  */
 
 #include "toolbar.hh"
+#include "input.hh"
 #include "pixmaps.hh"
 #include "table_files.hh"
 
 #include <string>
 
 #include <FL/Fl.H>
+#include <FL/Fl_Box.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Pixmap.H>
@@ -40,7 +42,9 @@ enum {
 	id_trash,
 	id_copy,
 	id_cut,
-	id_paste
+	id_paste,
+	id_user_home,
+	id_arrow_up,
 };
 
 struct toolbar_button : public Fl_Button
@@ -84,11 +88,16 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	p[id_copy] = make_shared<Fl_Pixmap>(xpm_icon_copy);
 	p[id_cut] = make_shared<Fl_Pixmap>(xpm_icon_cut);
 	p[id_paste] = make_shared<Fl_Pixmap>(xpm_icon_paste);
+	p[id_user_home] = make_shared<Fl_Pixmap>(xpm_icon_user_home);
+	p[id_arrow_up] = make_shared<Fl_Pixmap>(xpm_icon_arrow_up);
 
 	add_button("trash", p[id_trash]);
 	add_button("copy", p[id_copy]);
 	add_button("cut", p[id_cut]);
 	add_button("paste", p[id_paste]);
+	add_separator();
+	add_button("home", p[id_user_home]);
+	add_button("move up", p[id_arrow_up]);
 
 	end();
 }
@@ -113,6 +122,13 @@ int toolbar::handle(int event)
 			a.tf->cut();
 		} else if (Fl::pushed() == b[id_paste].get()) {
 			a.tf->paste();
+		} else if (Fl::pushed() == b[id_user_home].get()) {
+			string home = a.tf->get_home_path();
+			a.i->value(home.c_str());
+			a.tf->load_dir(home.c_str());
+		} else if (Fl::pushed() == b[id_arrow_up].get()) {
+			a.tf->update_path("..");
+			a.tf->load_dir();
 		}
 		return 1;
 	case FL_RELEASE:
@@ -129,17 +145,23 @@ int toolbar::handle(int event)
 void toolbar::add_button(const char *name, shared_ptr<Fl_Pixmap> &img)
 {
 	static int idx = 0;
-	begin();
 
+	begin();
 	b[idx] = make_shared<toolbar_button>(0, 0, butt_size, butt_size);
 	b[idx]->box(FL_FLAT_BOX);
-
 	if (name)
 		b[idx]->tooltip(name);
 	if (img)
 		b[idx]->image(img.get());
-
 	idx++;
-
 	end();
+}
+
+void toolbar::add_separator()
+{
+	static int idx = 0;
+
+	seps[idx] = make_shared<Fl_Box>(w(), 0, 7, 0);
+
+	add(seps[idx].get());
 }
