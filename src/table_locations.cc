@@ -5,7 +5,7 @@
  *
  * This file is part of mfm application.
  *
- * mfm library is free software: you can redistribute it and/or modify
+ * mfm app. is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -84,6 +84,15 @@ void table_locations::load_locations()
 	locations.push_back(loc_path("home", a.tf->get_cur_path()));
 
 	cols(1);
+	rows((int)locations.size());
+
+	redraw();
+}
+
+void table_locations::insert(const string &location_name, const string &path)
+{
+	printf("pushing  back\n");
+	locations.push_back(loc_path(location_name, path));
 	rows((int)locations.size());
 
 	redraw();

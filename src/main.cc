@@ -5,7 +5,7 @@
  *
  * This file is part of mfm application.
  *
- * mfm library is free software: you can redistribute it and/or modify
+ * mfm app. is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -21,10 +21,19 @@
  */
 
 #include "win_main.hh"
+#include "config.hh"
 
 int main(int argc, char **argv)
 {
-	win_main wm;
+	int w, h;
+
+	if (!config::get().load_config())
+		config::get().setup_defaults();
+
+	w = config::get().get_int("application.width");
+	h = config::get().get_int("application.height");
+
+	win_main wm(w, h);
 
 	return wm.run();
 }

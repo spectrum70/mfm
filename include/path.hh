@@ -14,6 +14,7 @@ struct path {
 
 	string get_home_path() { return user_home; }
 	string get_cur_path() { return fs_path; }
+	string get_cur_folder();
 
 protected:
 	string user_home;

@@ -8,7 +8,7 @@ struct pos {
 
 struct sz {
 	int width;
-	int heigth;
+	int height;
 };
 
 #endif /* __visual_hh__ */

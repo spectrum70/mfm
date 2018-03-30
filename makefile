@@ -13,7 +13,7 @@ BINDIR=$(PROJDIR)/bin
 BINARY=$(BINDIR)/$(PROJ)
 
 LIBS=-lfltk -lXext -lX11 -lm
-SLIBS=-lstdc++fs
+SLIBS=-lstdc++fs -lconfig
 
 ### linker flags
 LDFLAGS=-Wl,-Map,$(BINDIR)/$(PROJ).map $(LIBS)

@@ -11,8 +11,8 @@ class Fl_Pixmap;
 class Fl_Box;
 class toolbar_button;
 
-constexpr int max_buttons = 6;
-constexpr int max_seps = 1;
+constexpr int max_buttons = 9;
+constexpr int max_seps = 3;
 
 struct toolbar : public Fl_Pack
 {

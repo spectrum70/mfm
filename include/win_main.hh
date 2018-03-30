@@ -15,13 +15,9 @@ class input;
 
 struct win_main : public Fl_Window
 {
-	win_main();
-
-	//static int __global_handler(int event, void *data)
-	//{ ()
+	win_main(int width, int height);
 
 	int handle(int event);
-
 	int run();
 
 private:

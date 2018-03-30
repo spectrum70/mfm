@@ -5,7 +5,7 @@
  *
  * This file is part of mfm application.
  *
- * mfm library is free software: you can redistribute it and/or modify
+ * mfm app. is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -24,6 +24,8 @@
 #include "input.hh"
 #include "pixmaps.hh"
 #include "table_files.hh"
+#include "table_locations.hh"
+#include "config.hh"
 
 #include <string>
 
@@ -45,6 +47,9 @@ enum {
 	id_paste,
 	id_user_home,
 	id_arrow_up,
+	id_bookmark_new,
+	id_help,
+	id_about,
 };
 
 struct toolbar_button : public Fl_Button
@@ -90,6 +95,9 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	p[id_paste] = make_shared<Fl_Pixmap>(xpm_icon_paste);
 	p[id_user_home] = make_shared<Fl_Pixmap>(xpm_icon_user_home);
 	p[id_arrow_up] = make_shared<Fl_Pixmap>(xpm_icon_arrow_up);
+	p[id_bookmark_new] = make_shared<Fl_Pixmap>(xpm_icon_bookmark_new);
+	p[id_help] = make_shared<Fl_Pixmap>(xpm_icon_help);
+	p[id_about] = make_shared<Fl_Pixmap>(xpm_icon_abuot);
 
 	add_button("trash", p[id_trash]);
 	add_button("copy", p[id_copy]);
@@ -98,7 +106,11 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	add_separator();
 	add_button("home", p[id_user_home]);
 	add_button("move up", p[id_arrow_up]);
-
+	add_separator();
+	add_button("add bookmark", p[id_bookmark_new]);
+	add_separator();
+	add_button("help", p[id_help]);
+	add_button("about", p[id_about]);
 	end();
 }
 
@@ -113,7 +125,6 @@ int toolbar::handle(int event)
 
 			if (sel == "")
 				return 1;
-
 			a.tf->trash();
 		} else if (Fl::pushed() == b[id_copy].get()) {
 			printf("handle copy\n");
@@ -129,6 +140,14 @@ int toolbar::handle(int event)
 		} else if (Fl::pushed() == b[id_arrow_up].get()) {
 			a.tf->update_path("..");
 			a.tf->load_dir();
+		} else if (Fl::pushed() == b[id_bookmark_new].get()) {
+			string path = a.tf->get_cur_path();
+			string name = a.tf->get_cur_folder();
+
+			config::get().add_option("bookmarks",
+					name.c_str(), path.c_str());
+			a.tl->insert(name, path);
+			config::get().save_config();
 		}
 		return 1;
 	case FL_RELEASE:
@@ -164,4 +183,5 @@ void toolbar::add_separator()
 	seps[idx] = make_shared<Fl_Box>(w(), 0, 7, 0);
 
 	add(seps[idx].get());
+	idx++;
 }
