@@ -26,13 +26,17 @@ SRCS:= $(wildcard $(SRCDIR)/*.cc)
 OBJS:= $(patsubst %.cc,%.o,$(SRCS))
 OBJS:= $(patsubst $(SRCDIR)%,$(OBJDIR)%,$(OBJS))
 
-all: $(BINARY)
+all: directories $(BINARY)
 
 $(BINARY): $(OBJS)
 	$(CPP) $(LDFLAGS) $(OBJS) -o $@ $(SLIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cc
 	$(CPP) $(CFLAGS) $(INCDIR) -c -o $@ $<
+
+directories:
+	mkdir -p obj
+	mkdir -p bin
 
 clean:
 	rm -f obj/*.o bin/*

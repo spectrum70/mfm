@@ -1,14 +1,25 @@
 # mfm
 
- * mfm app. is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * mfm is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with mfm.  If not, see <http://www.gnu.org/licenses/>.
+mfm app. is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+mfm is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with mfm.  If not, see <http://www.gnu.org/licenses/>.
+
+Copyright (C) Angelo Dureghello
+
+Install
+=======
+be sure to have installed libconfig-dev package.
+Perfor the 3 steps below:
+
+1. tar -zxvf mfmxxx.tar.gz
+2. make
+3. sudo cp bin/mfm /usr/bin 
