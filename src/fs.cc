@@ -20,42 +20,19 @@
  *
  */
 
-#include "path.hh"
+#include "fs.hh"
 
-path::path()
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
+fs::fs()
 {
-	string homedir = get_user_home();
-
-	fs_path = homedir;
-	user_home = homedir;
 }
 
-path::path(const string &path)
+string fs::get_user_home()
 {
-	fs_path = path;
+	struct passwd *pw = getpwuid(getuid());
+
+	return pw->pw_dir;
 }
-
-void path::update_path(const string &name)
-{
-	if (name == "..") {
-		if (fs_path.has_parent_path())
-			fs_path = fs_path.parent_path();
-	} else if (name != ".") {
-		if (fs_path != "/")
-			fs_path += "/";
-		fs_path += name;
-	}
-}
-
-string path::get_cur_folder()
-{
-	string rval = "";
-	string path = fs_path;
-	int x;
-
-	if ((x = path.rfind('/')) != string::npos)
-		rval = path.substr(x + 1);
-
-	return rval;
-}
-

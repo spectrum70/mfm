@@ -13,6 +13,8 @@ using std::string;
 using std::vector;
 using std::pair;
 
+typedef pair<string, string> loc_path;
+
 struct table_locations : public Fl_Table_Row
 {
 	table_locations(int x, int y, int w, int h, app &ptrs);
@@ -28,7 +30,9 @@ protected:
 	void event_callback();
 
 private:
-	typedef pair<string, string> loc_path;
+	loc_path parse_location(const string &config_location);
+
+private:
 	vector<loc_path> locations;
 	app &a;
 };

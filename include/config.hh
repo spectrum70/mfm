@@ -2,6 +2,13 @@
 #define __config_hh__
 
 #include <libconfig.h>
+#include <vector>
+#include <string>
+
+using std::vector;
+using std::string;
+
+typedef vector<string> vect_str;
 
 class config {
 	config();
@@ -20,6 +27,8 @@ public:
 	void setup_defaults();
 
 	int get_int(const char *path);
+
+	vect_str get_string_list(const char *sect);
 
 private:
 	config_setting_t* get_group(const char *sect);

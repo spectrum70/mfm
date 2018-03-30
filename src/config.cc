@@ -5,7 +5,7 @@
  *
  * This file is part of mfm application.
  *
- * mfm library is free software: you can redistribute it and/or modify
+ * mfm app. is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -21,6 +21,7 @@
  */
 
 #include "config.hh"
+#include "fs.hh"
 
 #include <string>
 
@@ -45,11 +46,15 @@ config::~config()
 
 void config::setup_defaults()
 {
+	fs filesystem;
+
+	string home = "home," + filesystem.get_user_home();
+
 	add_option("application", "width", 800);
 	add_option("application", "height", 600);
 
 	add_option("bookmarks", "bm001", "root,/");
-	add_option("bookmarks", "bm002", "home,/");
+	add_option("bookmarks", "bm002", home.c_str());
 
 	save_config();
 }
@@ -67,11 +72,8 @@ bool config::load_config()
 config_setting_t* config::get_group(const char *sect)
 {
 	config_setting_t *group;
-	string path;
 
-	path = string("/") + sect;
-
-	group = config_lookup(&cfg, path.c_str());
+	group = config_lookup(&cfg, sect);
 	if (!group) {
 		group = config_setting_add(root, sect, CONFIG_TYPE_GROUP);
 		if (!group) {
@@ -129,9 +131,27 @@ int config::get_int(const char *path)
 	return -1;
 }
 
-bool config::get_list()
+vect_str config::get_string_list(const char *sect)
 {
-	config_setting_get_elem
+	config_setting_t *group;
+	vect_str rvalues;
+	char bm[7] = {"bm"};
+	const char *location;
+	int i, count;
+
+	rvalues.clear();
+
+	group = get_group(sect);
+	if (!group)
+		fprintf(stderr, "++err: get_string_list()\n");
+
+	count = config_setting_length(group);
+	for(i = 0; i < count; ++i) {
+		location = config_setting_get_string_elem(group, i);
+		rvalues.push_back(location);
+	}
+
+	return rvalues;
 }
 
 bool config::save_config()

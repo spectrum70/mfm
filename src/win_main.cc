@@ -40,6 +40,7 @@ win_main::win_main(int w, int h) : Fl_Window(w, h, "mfm")
 
 	begin();
 
+	ptrs.wm = this;
 	ptrs.tb = make_shared<toolbar>(0, 2, s.width, command_bar_height, ptrs);
 
 	ptrs.tf = make_shared<table_files>(window_border + locations_width,

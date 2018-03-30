@@ -1,12 +1,14 @@
 #ifndef __path_hh__
 #define __path_hh__
 
+#include "fs.hh"
+
 #include <string>
 #include <experimental/filesystem>
 
 using namespace std;
 
-struct path {
+struct path : public fs {
 	path();
 	path(const string &);
 

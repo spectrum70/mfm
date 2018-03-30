@@ -23,8 +23,12 @@
 #include "table_locations.hh"
 #include "table_files.hh"
 #include "input.hh"
+#include "config.hh"
 
+#include <list>
 #include <FL/fl_draw.H>
+
+using std::list;
 
 constexpr int font_face_header = FL_HELVETICA;
 constexpr int font_size_header = 11;
@@ -76,14 +80,38 @@ void table_locations::event_callback()
 	}
 }
 
+loc_path table_locations::parse_location(const string &config_location)
+{
+	int x;
+
+	if ((x = config_location.find(',')) != string::npos) {
+		loc_path p;
+
+		p.first = config_location.substr(0, x);
+		p.second = config_location.substr(x + 1);
+
+		return p;
+	}
+
+	return loc_path("", "");
+}
+
 void table_locations::load_locations()
 {
-	locations.clear();
-
-	locations.push_back(loc_path("/", "/"));
-	locations.push_back(loc_path("home", a.tf->get_cur_path()));
+	int i;
 
 	cols(1);
+	locations.clear();
+
+	vect_str loc = config::get().get_string_list("bookmarks");
+
+	for (i = 0; i < loc.size(); ++i) {
+		loc_path p = parse_location(loc[i]);
+		if (p.first != "") {
+			locations.push_back(p);
+		}
+	}
+
 	rows((int)locations.size());
 
 	redraw();
@@ -91,7 +119,6 @@ void table_locations::load_locations()
 
 void table_locations::insert(const string &location_name, const string &path)
 {
-	printf("pushing  back\n");
 	locations.push_back(loc_path(location_name, path));
 	rows((int)locations.size());
 

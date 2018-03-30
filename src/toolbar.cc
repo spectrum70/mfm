@@ -25,6 +25,9 @@
 #include "pixmaps.hh"
 #include "table_files.hh"
 #include "table_locations.hh"
+#include "win_help.hh"
+#include "win_about.hh"
+#include "win_main.hh"
 #include "config.hh"
 
 #include <string>
@@ -143,12 +146,35 @@ int toolbar::handle(int event)
 		} else if (Fl::pushed() == b[id_bookmark_new].get()) {
 			string path = a.tf->get_cur_path();
 			string name = a.tf->get_cur_folder();
+			char bm[6] = {"bm"};
+			int count = a.tl->rows();
 
-			config::get().add_option("bookmarks",
-					name.c_str(), path.c_str());
+			sprintf(&bm[2], "%03d", count + 1);
+			config::get().add_option("bookmarks", bm,
+					(name + "," + path).c_str());
 			a.tl->insert(name, path);
 			config::get().save_config();
+		} else if (Fl::pushed() == b[id_help].get()) {
+			win_help *hlp = new win_help(400, 400);
+			hlp->set_modal();
+
+			int posx = a.wm->x() + a.wm->w() / 2 - hlp->w() / 2;
+			int posy = a.wm->y() + a.wm->h() / 2 - hlp->h() / 2;
+
+			hlp->position(posx, posy);
+			hlp->show();
+
+		} else if (Fl::pushed() == b[id_about].get()) {
+			win_about *abt = new win_about(450, 200);
+			abt->set_modal();
+
+			int posx = a.wm->x() + a.wm->w() / 2 - abt->w() / 2;
+			int posy = a.wm->y() + a.wm->h() / 2 - abt->h() / 2;
+
+			abt->position(posx, posy);
+			abt->show();
 		}
+
 		return 1;
 	case FL_RELEASE:
 	case FL_DRAG:
