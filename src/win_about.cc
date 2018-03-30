@@ -21,6 +21,7 @@
  */
 
 #include "win_about.hh"
+#include "version.hh"
 
 #include <FL/Fl.H>
 #include <FL/Fl_Text_Buffer.H>
@@ -36,7 +37,7 @@ win_about::win_about(int w, int h) : Fl_Window(w, h, "mfm help")
 	td->textfont(FL_COURIER);
 	td->textsize(12);
 
-	tb->append("mfm\n\n"
+	tb->append("mfm v." VERSION "\n\n"
 		"(C) 2017 Angelo Dureghello <angelo@sysam.it>\n"
 		"\n"
 		"mfm is distributed in the hope that it will be useful,\n"

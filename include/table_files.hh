@@ -46,6 +46,7 @@ private:
 	vector<row> rowdata;
 	string selected;
 	string clip_op_src;
+	string current_usr, current_grp;
 	char longname[512];
 	int sort_reverse;
 	int sort_lastcol;

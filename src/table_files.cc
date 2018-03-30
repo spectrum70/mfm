@@ -23,6 +23,8 @@
 #include "table_files.hh"
 #include "input.hh"
 
+#include <sys/types.h>
+#include <grp.h>
 #include <unistd.h>
 
 #include <FL/fl_draw.H>
@@ -32,6 +34,10 @@ constexpr int font_face_header = FL_HELVETICA;
 constexpr int font_size_header = 11;
 constexpr int font_face_row = FL_HELVETICA;
 constexpr int font_size_row = 11;
+constexpr int max_username_len = 32;
+
+constexpr int COLUMNS = 9;
+constexpr int LS_OUT_COLS = 11;
 
 static const char *header[] = {
 		"cnt",
@@ -54,6 +60,13 @@ enum {
 table_files::table_files(int x, int y, int w, int h, app &ptrs)
 : path(), Fl_Table_Row(x, y, w, h), a(ptrs), sort_reverse(0), sort_lastcol(0)
 {
+	current_usr.resize(max_username_len);
+	getlogin_r(&current_usr[0], max_username_len);
+	current_usr.resize(strlen(&current_usr[0]));
+
+	struct group * g = getgrgid(getuid());
+	current_grp = g->gr_name;
+
 	row_resize(0);
 
 	col_header(1);
@@ -150,6 +163,9 @@ void table_files::event_callback()
 			return;
 		if (rowdata[R].cols[5][0] == 'd') {
 			update_path(rowdata[R].cols[1]);
+			load_dir();
+		} else if (rowdata[R].cols[5][0] == 'l') {
+			update_path(rowdata[R].cols[COLUMNS]);
 			load_dir();
 		} else {
 			if (rowdata[R].cols[1] != selected) {
@@ -251,10 +267,6 @@ void table_files::load_dir(const char *path)
 {
 	char s[512];
 	char n[16];
-
-#define COLUMNS  9
-#define LS_OUT_COLS 11
-
 	const int remap[LS_OUT_COLS] = {5, 0, 6, 7, 2, 3, 0, 4, 1, 0, 0};
 
 	rowdata.clear();
@@ -281,7 +293,7 @@ void table_files::load_dir(const char *path)
 		rowdata.push_back(r);
 
 		vector<char*> &rc = rowdata[i - 1].cols;
-		rc.resize(COLUMNS);
+		rc.resize(COLUMNS + 1);
 
 		// Break the line
 		for (int t = 0; t < LS_OUT_COLS; t++) {
@@ -290,11 +302,20 @@ void table_files::load_dir(const char *path)
 				sprintf(n, "%d", i);
 				rc[0] = strdup(n);
 			} else if (t == 8) {
+				bool link = false;
 				longname[0] = 0;
 				while (ss = strtok(NULL, delim)) {
-					if (longname[0] != 0)
-						strcat(longname, " ");
-					strcat(longname, ss);
+					if (link) {
+						/* store link path */
+						rc[COLUMNS] = strdup(ss);
+						break;
+					}
+					if (string(ss) == "->") {
+						link = true;
+						continue;
+					} else {
+						strcat(longname, ss);
+					}
 				}
 				ss = longname;
 			} else {
@@ -393,12 +414,26 @@ void table_files::draw_cell(TableContext context,
 			fl_font(font_face_row, font_size_row);
 			fl_color(15, 15, 15);
 			if (C == 1) {
-				if (rowdata[R].cols[5][0] == 'd')
-					fl_color(10, 10 , 230);
-				if (s[0] == '.' && s[1] != 0)
-					fl_color(180, 180, 180);
-			} else if (C == 6)
-				fl_color(0, 165 , 0);
+				if (rowdata[R].cols[5][0] == 'd') {
+					if (s[0] == '.')
+						fl_color(130, 130, 230);
+					else
+						fl_color(10, 10 , 230);
+				} else if (rowdata[R].cols[5][0] == 'l') {
+					fl_color(180, 180, 0);
+				} else if (s[1] != 0) {
+					if (s[0] == '.')
+						fl_color(130, 130, 130);
+					else
+						fl_color(20, 20, 20);
+				}
+			} else if (C == 6) {
+				if (string(s) == current_usr)
+					fl_color(0, 165 , 0);
+			} else if (C == 7) {
+				if (string(s) == current_grp)
+					fl_color(0, 165 , 0);
+			}
 
 			fl_draw(s, X + 2, Y, W, H, FL_ALIGN_LEFT |
 					FL_ALIGN_CENTER);
