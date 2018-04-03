@@ -23,6 +23,7 @@
 #include "table_files.hh"
 #include "input.hh"
 
+#include <algorithm>
 #include <sys/types.h>
 #include <grp.h>
 #include <unistd.h>
@@ -55,6 +56,33 @@ enum {
 	cl_op_none,
 	cl_op_copy,
 	cl_op_cut,
+};
+
+// Sort class to handle sorting column using std::sort
+class sort_method {
+	int _col, _reverse;
+public:
+	sort_method(int col, int reverse) {
+		_col = col;
+		_reverse = reverse;
+	}
+	bool operator()(const row &a, const row &b) {
+		const char *ap = ( _col < (int)a.cols.size() ) ?
+				a.cols[_col] : "",
+			   *bp = ( _col < (int)b.cols.size() ) ?
+				b.cols[_col] : "";
+		if ( isdigit(*ap) && isdigit(*bp) ) {
+			// Numeric sort
+			int av=0; sscanf(ap, "%d", &av);
+			int bv=0; sscanf(bp, "%d", &bv);
+
+			return( _reverse ? av < bv : bv < av );
+		} else {
+			// Alphabetic sort
+			return( _reverse ? strcmp(ap, bp) > 0 :
+					strcmp(ap, bp) < 0 );
+		}
+	}
 };
 
 table_files::table_files(int x, int y, int w, int h, app &ptrs)
@@ -137,13 +165,13 @@ void table_files::event_callback()
 	case CONTEXT_COL_HEADER: {
 		// someone clicked on column header
 		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1 ) {
-		/*if ( sort_lastcol == COL ) { // Click same column? Toggle sort
-		    sort_reverse ^= 1;
-		} else { // Click diff column? Up sort
-		    sort_reverse = 0;
-		}
-		//sort_column(COL, _sort_reverse);
-		sort_lastcol = COL;*/
+			if (sort_lastcol == C) {
+				sort_reverse ^= 1;
+			} else {
+				sort_reverse = 0;
+			}
+			sort_column(C, sort_reverse);
+			sort_lastcol = C;
 		}
 		break;
 	case CONTEXT_CELL:
@@ -261,6 +289,12 @@ void table_files::paste()
 	load_dir();
 
 	focus(this);
+}
+
+void table_files::sort_column(int col, int reverse)
+{
+	std::sort(rowdata.begin(), rowdata.end(), sort_method(col, reverse));
+	redraw();
 }
 
 void table_files::load_dir(const char *path)
