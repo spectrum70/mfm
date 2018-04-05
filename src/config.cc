@@ -22,12 +22,11 @@
 
 #include "config.hh"
 #include "fs.hh"
+#include "path.hh"
 
 #include <string>
 
 using std::string;
-
-static const char default_config[] = "/home/angelo/.mfm";
 
 config::config()
 {
@@ -61,7 +60,10 @@ void config::setup_defaults()
 
 bool config::load_config()
 {
-	if(!config_read_file(&cfg, default_config))
+	path p;
+        string default_config = p.get_home_path() + "/.mfm";
+
+	if(!config_read_file(&cfg, default_config.c_str()))
 		return false;
 
 	root = config_root_setting(&cfg);
@@ -156,7 +158,10 @@ vect_str config::get_string_list(const char *sect)
 
 bool config::save_config()
 {
-	if(!config_write_file(&cfg, default_config)) {
+	path p;
+	string default_config = p.get_home_path() + "/.mfm";
+
+	if(!config_write_file(&cfg, default_config.c_str())) {
 		fprintf(stderr, "++err: while writing file.\n");
 		config_destroy(&cfg);
 
