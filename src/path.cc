@@ -59,3 +59,20 @@ string path::get_cur_folder()
 	return rval;
 }
 
+string path::ls_normalize(const string &path)
+{
+	int x, cur = 0;
+	string ls_path = path;
+
+	while ((x = ls_path.find(' ', cur)) != string::npos) {
+		if (ls_path[x - 1] != '\\')
+			ls_path.insert(x, "\\");
+		if (x < ls_path.size())
+			cur = x + 1;
+		else
+			break;
+	}
+
+	return ls_path;
+}
+

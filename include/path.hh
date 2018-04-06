@@ -18,6 +18,8 @@ struct path : public fs {
 	string get_cur_path() { return fs_path; }
 	string get_cur_folder();
 
+	string ls_normalize(const string &path);
+
 protected:
 	string user_home;
 	experimental::filesystem::path fs_path;

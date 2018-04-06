@@ -311,7 +311,7 @@ void table_files::load_dir(const char *path)
 	a.i->value(fs_path.c_str());
 
 	strcpy(s, "ls -alh ");
-	strcat(s, fs_path.c_str());
+	strcat(s, ls_normalize(fs_path).c_str());
 
 	FILE *fp = popen(s, "r");
 	cols(0);
@@ -348,6 +348,8 @@ void table_files::load_dir(const char *path)
 						link = true;
 						continue;
 					} else {
+						if (longname[0])
+							strcat(longname, " ");
 						strcat(longname, ss);
 					}
 				}
@@ -449,10 +451,13 @@ void table_files::draw_cell(TableContext context,
 			fl_color(15, 15, 15);
 			if (C == 1) {
 				if (rowdata[R].cols[5][0] == 'd') {
-					if (s[0] == '.')
+					if (s[0] == '.' && s[1] != 0)
 						fl_color(130, 130, 230);
-					else
+					else {
+						fl_font(font_face_row |
+							FL_BOLD, font_size_row);
 						fl_color(10, 10 , 230);
+					}
 				} else if (rowdata[R].cols[5][0] == 'l') {
 					fl_color(180, 180, 0);
 				} else if (s[1] != 0) {

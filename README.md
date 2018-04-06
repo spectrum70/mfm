@@ -18,7 +18,7 @@ Copyright (C) Angelo Dureghello
 Install
 =======
 be sure to have installed libconfig-dev package.
-Perfor the 3 steps below:
+Perform the 3 steps below:
 
 1. tar -zxvf mfmxxx.tar.gz
 2. make
