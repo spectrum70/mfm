@@ -34,10 +34,13 @@ struct table_files : public path, public Fl_Table_Row
 private:
 	void autowidth(int pad);
 
-	static void __event_callback(Fl_Widget*, void *data)
+	static void __event_callback(Fl_Widget *, void *data)
 	{ ((table_files*)data)->event_callback(); }
+	static void __handle_rmenu(Fl_Widget *w, void *data)
+	{ ((table_files*)data)->handle_rmenu(w); }
 
 	void event_callback();
+	void handle_rmenu(Fl_Widget *);
 	void draw_cell(TableContext context, int R = 0, int C = 0,
 				int X = 0, int Y = 0, int W = 0, int H = 0);
 	void draw_sort_arrow(int X, int Y, int W, int H);

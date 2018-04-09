@@ -30,6 +30,8 @@
 
 #include <FL/fl_draw.H>
 #include <FL/fl_ask.H>
+#include <FL/Fl_Menu_.H>
+#include <FL/Fl_Menu_Item.H>
 
 constexpr int font_face_header = FL_HELVETICA;
 constexpr int font_size_header = 11;
@@ -155,6 +157,22 @@ void table_files::open_file(string &file)
 	system(s);
 }
 
+void table_files::handle_rmenu(Fl_Widget *w)
+{
+	Fl_Menu_Item *mi = (Fl_Menu_Item *)w;
+
+	if (strncmp(mi->label(), "cut", 3) == 0) {
+		cut();
+	} else if (strncmp(mi->label(), "copy", 4) == 0) {
+		copy();
+	} else if (strncmp(mi->label(), "paste", 5) == 0) {
+		paste();
+	} else if (strncmp(mi->label(), "delete", 6) == 0) {
+		trash();
+	} else if (strncmp(mi->label(), "rename", 6) == 0) {
+	}
+}
+
 void table_files::event_callback()
 {
 	int R = callback_row();
@@ -175,7 +193,29 @@ void table_files::event_callback()
 		}
 		break;
 	case CONTEXT_CELL:
-		if (Fl::event() == FL_KEYDOWN) {
+		if (Fl::event() == FL_RELEASE && Fl::event_button() == 3) {
+			select_row(R, 1);
+			selected = rowdata[R].cols[1];
+
+			Fl_Menu_Item rclick_menu[] = {
+				{"cut", FL_CTRL + 'z', __handle_rmenu, this},
+				{"copy", FL_CTRL + 'c', __handle_rmenu, this},
+				{"paste", FL_CTRL + 'v', __handle_rmenu, this,
+					FL_MENU_DIVIDER},
+				{"delete", FL_Delete, __handle_rmenu, this,
+					FL_MENU_DIVIDER},
+				{"rename", 0, __handle_rmenu, this},
+				{0}
+			};
+
+			const Fl_Menu_Item *m =
+				rclick_menu->popup(
+					Fl::event_x(), Fl::event_y(), 0, 0, 0);
+    			if (m) {
+				m->do_callback((Fl_Widget *)m, m->user_data());
+				load_dir();
+			}
+		} else if (Fl::event() == FL_KEYDOWN) {
 			if (Fl::event_key() == FL_Up)
 				move_selection_up();
 			else if (Fl::event_key() == FL_Down)
