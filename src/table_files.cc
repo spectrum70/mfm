@@ -51,6 +51,7 @@ static const char *header[] = {
 		"rights",
 		"owner",
 		"group",
+		"link path",
 		0
 };
 
@@ -381,7 +382,7 @@ void table_files::load_dir(const char *path)
 				while (ss = strtok(NULL, delim)) {
 					if (link) {
 						/* store link path */
-						rc[COLUMNS] = strdup(ss);
+						rc[COLUMNS - 1] = strdup(ss);
 						break;
 					}
 					if (string(ss) == "->") {
@@ -489,7 +490,9 @@ void table_files::draw_cell(TableContext context,
 			fl_rectf(X, Y, W, H);
 			fl_font(font_face_row, font_size_row);
 			fl_color(15, 15, 15);
-			if (C == 1) {
+			if (C == 0) {
+				fl_color(130, 130, 130);
+			} else if (C == 1) {
 				if (rowdata[R].cols[5][0] == 'd') {
 					if (s[0] == '.' && s[1] != 0)
 						fl_color(130, 130, 230);
