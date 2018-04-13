@@ -8,9 +8,10 @@ struct input : public Fl_Input
 {
 	input(int X, int Y, int W, int H, app &ptrs);
 
-	void cb_event();
+	void cb_input();
 protected:
-	static void cb_input(Fl_Widget *w, void *data);
+	static void __cb_input(Fl_Widget *w, void *data)
+	{ ((input *)data)->cb_input(); }
 
 private:
 	app &a;

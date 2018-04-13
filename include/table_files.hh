@@ -22,6 +22,7 @@ struct table_files : public path, public Fl_Table_Row
 	void load_dir(const char *dir = 0);
 
 	/* file common operations, on selected item */
+	void rename();
 	void trash();
 	void copy();
 	void cut();

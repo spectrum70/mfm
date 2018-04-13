@@ -33,14 +33,10 @@ input::input(int X, int Y, int W, int H, app &ptrs)
 	textfont(FL_HELVETICA);
 
 	when(FL_WHEN_ENTER_KEY_ALWAYS | FL_WHEN_CHANGED);
-	callback(cb_input, (void*)this);
+	callback(__cb_input, (void*)this);
 }
 
-void input::cb_input(Fl_Widget *w, void *data) {
-	((input *)data)->cb_event();
-}
-
-void input::cb_event()
+void input::cb_input()
 {
 	if (Fl::event() == FL_KEYDOWN) {
 		if (Fl::event_key(FL_Enter)) {

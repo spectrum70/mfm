@@ -22,6 +22,7 @@
 
 #include "table_files.hh"
 #include "input.hh"
+#include "win_input.hh"
 
 #include <algorithm>
 #include <sys/types.h>
@@ -171,6 +172,7 @@ void table_files::handle_rmenu(Fl_Widget *w)
 	} else if (strncmp(mi->label(), "delete", 6) == 0) {
 		trash();
 	} else if (strncmp(mi->label(), "rename", 6) == 0) {
+		rename();
 	}
 }
 
@@ -276,6 +278,35 @@ void table_files::move_selection_down()
 	select_row(row_top - 1, 0);
 	select_row(row_top, 1);
 	set_selection(row_top, col_left, row_bot, col_right);
+}
+
+void table_files::rename()
+{
+	string new_name, src, dst;
+	int row_top, col_left, row_bot, col_right;
+
+	get_selection(row_top, col_left, row_bot, col_right);
+
+	win_input i(parent()->x() + x(),
+		parent()->y() + y() + (row_bot * 12) + 42, 300, 24, selected);
+
+	i.clear_border();
+	i.show();
+
+	while (i.shown() && !i.updated()) {
+		Fl::wait();
+	}
+
+	i.hide();
+
+	new_name = i.updated_text();
+	new_name.resize(new_name.size() - 1);
+
+	src = string(fs_path) + "/" + selected;
+	dst = string(fs_path) + "/" + new_name;
+
+	::rename(src.c_str(), dst.c_str());
+	load_dir();
 }
 
 void table_files::trash()
