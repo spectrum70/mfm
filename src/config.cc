@@ -122,6 +122,50 @@ bool config::add_option(const char *sect, const char *name, int value)
 	return true;
 }
 
+bool config::update_option(
+	const char *sect, const char *name, const char *value)
+{
+	config_setting_t *group;
+	int rval;
+	string path;
+
+	path = sect;
+	path += ".";
+	path += name;
+
+	group = get_group(path.c_str());
+
+	rval = config_setting_set_string(group, value);
+	if (rval != CONFIG_TRUE) {
+		fprintf(stderr, "++err: update_option(), name %s\n", name);
+		return false;
+	}
+
+	return true;
+}
+
+bool config::update_option(const char *sect, const char *name, int value)
+{
+	config_setting_t *group;
+	int rval;
+	string path;
+
+	path = sect;
+	path += ".";
+	path += name;
+
+	group = get_group(path.c_str());
+
+	rval = config_setting_set_int(group, value);
+	if (rval != CONFIG_TRUE) {
+		fprintf(stderr, "++err: update_option(), name %s\n", name);
+		return false;
+	}
+
+	return true;
+}
+
+
 int config::get_int(const char *path)
 {
 	int rval;

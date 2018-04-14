@@ -22,6 +22,10 @@ public:
 
 	bool add_option(const char *sect, const char *name, const char *value);
 	bool add_option(const char *sect, const char *name, int value);
+	bool update_option(
+		const char *sect, const char *name, const char *value);
+	bool update_option(
+		const char *sect, const char *name, const int value);
 	bool load_config();
 	bool save_config();
 	void setup_defaults();

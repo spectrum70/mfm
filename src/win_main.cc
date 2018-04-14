@@ -66,7 +66,7 @@ win_main::win_main(int w, int h) : Fl_Window(w, h, "mfm")
 
 int win_main::handle(int event)
 {
-	if (Fl::event() == FL_KEYDOWN) {
+	if (event == FL_KEYDOWN) {
 		switch (Fl::event_key()) {
 		case FL_Delete:
 			/* key pressed handled here */
@@ -104,7 +104,6 @@ int win_main::handle(int event)
 			 * */
 			return 0;
 		}
-
 	}
 
 	return Fl_Window::handle(event);
@@ -112,5 +111,11 @@ int win_main::handle(int event)
 
 int win_main::run()
 {
-	return Fl::run();
+	Fl::run();
+
+	config::get().update_option("application", "width", w());
+	config::get().update_option("application", "height", h());
+	config::get().save_config();
+
+	return 0;
 }
