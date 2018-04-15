@@ -22,6 +22,8 @@
 
 #include "path.hh"
 
+#include <iostream>
+
 path::path()
 {
 	string homedir = get_user_home();
@@ -75,4 +77,17 @@ string path::ls_normalize(const string &path)
 	}
 
 	return ls_path;
+}
+
+bool path::remove_folder(const string &path)
+{
+	std::error_code err_code;
+
+	if (! std::experimental::filesystem::remove_all(path, err_code)) {
+		cout << err_code.message() << std::endl;
+
+		return false;
+	}
+
+	return true;
 }

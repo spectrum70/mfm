@@ -172,7 +172,10 @@ void table_files::handle_rmenu(Fl_Widget *w)
 	} else if (strncmp(mi->label(), "paste", 5) == 0) {
 		paste();
 	} else if (strncmp(mi->label(), "delete", 6) == 0) {
-		trash();
+		int R, C;
+
+		get_selection (R, C, R, C);
+		trash(rowdata[R].cols[5][0] == 'd');
 	} else if (strncmp(mi->label(), "rename", 6) == 0) {
 		rename();
 	}
@@ -312,12 +315,25 @@ void table_files::rename()
 	load_dir();
 }
 
-void table_files::trash()
+void table_files::trash(bool folder)
 {
-	string text = "delete [ " + selected + " ] ?";
+	string text;
+
+	if (folder)
+		text = "remove folder [ " + selected +
+			"] and all contained files ?";
+	else
+		text = "delete [ " + selected + " ] ?";
+
+	string target = string(fs_path) + "/" + selected;
 
 	if (fl_choice(text.c_str(), "Yes", "No", 0) == 0) {
-		unlink((string(fs_path) + "/" + selected).c_str());
+		if (folder) {
+			path p;
+
+			p.remove_folder(target.c_str());
+		} else
+			unlink(target.c_str());
 	}
 
 	load_dir();
@@ -382,8 +398,6 @@ void table_files::load_dir(const char *path)
 
 	if (path)
 		fs_path = path;
-
-	printf("fs_path : %s\n", fs_path.c_str());
 
 	a.i->value(fs_path.c_str());
 

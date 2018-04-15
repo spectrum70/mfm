@@ -23,7 +23,7 @@ struct table_files : public path, public Fl_Table_Row
 
 	/* file common operations, on selected item */
 	void rename();
-	void trash();
+	void trash(bool folder = false);
 	void copy();
 	void cut();
 	void paste();
