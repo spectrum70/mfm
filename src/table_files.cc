@@ -105,6 +105,8 @@ table_files::table_files(int x, int y, int w, int h, app &ptrs)
 	col_header_height(14);
 	col_resize(1);
 
+	type(Fl_Table_Row::SELECT_SINGLE);
+
 	selection_color(FL_YELLOW);
 	color(FL_WHITE);
 
@@ -198,6 +200,7 @@ void table_files::event_callback()
 	case CONTEXT_CELL:
 		if (Fl::event() == FL_RELEASE && Fl::event_button() == 3) {
 			select_row(R, 1);
+			set_selection(R, 0, R, -1);
 			selected = rowdata[R].cols[1];
 
 			Fl_Menu_Item rclick_menu[] = {
@@ -288,7 +291,7 @@ void table_files::rename()
 	get_selection(row_top, col_left, row_bot, col_right);
 
 	win_input i(parent()->x() + x(),
-		parent()->y() + y() + (row_bot * 12) + 42, 300, 24, selected);
+		parent()->y() + y() + (row_bot * (12 + 3)) + 12, 300, 24, selected);
 
 	i.clear_border();
 	i.show();

@@ -101,7 +101,7 @@ int win_main::handle(int event)
 			/*
 			 * workaround, avoid arrow up/down to navigate on
 			 * path window
-			 * */
+			 **/
 			return 0;
 		}
 	}
