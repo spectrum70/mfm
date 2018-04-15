@@ -20,6 +20,8 @@ Install
 be sure to have installed libconfig-dev package.
 Perform the 3 steps below:
 
-1. tar -zxvf mfmxxx.tar.gz
-2. make
-3. sudo cp bin/mfm /usr/bin 
+1. tar -zxvf mfm-...
+2. ./autogen.sh
+3. ./configure
+4. make
+5. sudo make installn 
