@@ -17,8 +17,7 @@ Copyright (C) Angelo Dureghello
 
 Install
 =======
-be sure to have installed libconfig-dev package.
-Perform the 3 steps below:
+Perform the 5 steps below:
 
 1. tar -zxvf mfm-...
 2. ./autogen.sh
