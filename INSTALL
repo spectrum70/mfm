@@ -1,0 +1,6 @@
+Run the following:
+
+./autogen.sh
+./configure
+make
+sudo make install

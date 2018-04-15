@@ -239,7 +239,7 @@ void table_files::event_callback()
 			update_path(rowdata[R].cols[1]);
 			load_dir();
 		} else if (rowdata[R].cols[5][0] == 'l') {
-			update_path(rowdata[R].cols[COLUMNS]);
+			update_path(rowdata[R].cols[COLUMNS - 1]);
 			load_dir();
 		} else {
 			if (rowdata[R].cols[1] != selected) {
@@ -345,15 +345,15 @@ void table_files::paste()
 {
 	string cmd;
 	string dest;
-	int x;
+	unsigned int x;
 
 	if ((x = clip_op_src.rfind('/')) != string::npos) {
 		dest = clip_op_src.substr(x + 1);
 	}
 
-	if (cl_op = cl_op_copy) {
+	if (cl_op == cl_op_copy) {
 		cmd = "cp ";
-	} else if (cl_op = cl_op_cut) {
+	} else if (cl_op == cl_op_cut) {
 		cmd = "mv ";
 	}
 
@@ -382,6 +382,8 @@ void table_files::load_dir(const char *path)
 
 	if (path)
 		fs_path = path;
+
+	printf("fs_path : %s\n", fs_path.c_str());
 
 	a.i->value(fs_path.c_str());
 
@@ -413,7 +415,7 @@ void table_files::load_dir(const char *path)
 			} else if (t == 8) {
 				bool link = false;
 				longname[0] = 0;
-				while (ss = strtok(NULL, delim)) {
+				while ((ss = strtok(NULL, delim))) {
 					if (link) {
 						/* store link path */
 						rc[COLUMNS - 1] = strdup(ss);

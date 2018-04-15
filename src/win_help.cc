@@ -32,13 +32,20 @@ win_help::win_help(int w, int h) : Fl_Window(w, h, "mfm help")
 	tb = make_shared<Fl_Text_Buffer>();
 	td = make_shared<Fl_Text_Display>(1, 1, w - 2, h - 2);
 
+	td->wrap_mode(Fl_Text_Display::WRAP_AT_BOUNDS, 0); 
 	td->buffer(tb.get());
 	td->textfont(FL_COURIER);
 	td->textsize(12);
 
 	tb->append("mfm help\n\n");
+	tb->append("This file manager is actally kept in minimal features, "
+		   "due to the miminal resouces and time available. Main "
+		   "purpose is to keep a good speed of execution.\n\n");
+
+	tb->append("Configuraion is stored into ~/.mfm\n\n");
+
 	tb->append(
-		"Shortcuts\n"
+		"Keyboard shortcuts\n"
 		"============================\n"
 		"CTRL + c : copy\n"
 		"CTRL + z : cut\n"

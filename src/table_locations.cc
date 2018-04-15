@@ -66,14 +66,14 @@ void table_locations::__event_callback(Fl_Widget*, void *data)
 void table_locations::event_callback()
 {
 	int R = callback_row();
-	int C = callback_col();
 	TableContext context = callback_context();
 
 	switch (context) {
 	case CONTEXT_CELL:
-		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1)
+		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1) {
 			a.i->value(locations[R].second.c_str());
 			a.i->do_callback();
+		}
 		break;
 	default:
 		return;
@@ -82,7 +82,7 @@ void table_locations::event_callback()
 
 loc_path table_locations::parse_location(const string &config_location)
 {
-	int x;
+	unsigned int x;
 
 	if ((x = config_location.find(',')) != string::npos) {
 		loc_path p;
@@ -98,7 +98,7 @@ loc_path table_locations::parse_location(const string &config_location)
 
 void table_locations::load_locations()
 {
-	int i;
+	unsigned int i;
 
 	cols(1);
 	locations.clear();

@@ -81,7 +81,7 @@ int toolbar_button::handle(int event)
 		return 1;
 	}
 
-	Fl_Button::handle(event);
+	return Fl_Button::handle(event);
 }
 
 toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
@@ -100,7 +100,7 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	p[id_arrow_up] = make_shared<Fl_Pixmap>(xpm_icon_arrow_up);
 	p[id_bookmark_new] = make_shared<Fl_Pixmap>(xpm_icon_bookmark_new);
 	p[id_help] = make_shared<Fl_Pixmap>(xpm_icon_help);
-	p[id_about] = make_shared<Fl_Pixmap>(xpm_icon_abuot);
+	p[id_about] = make_shared<Fl_Pixmap>(xpm_icon_about);
 
 	add_button("trash", p[id_trash]);
 	add_button("copy", p[id_copy]);

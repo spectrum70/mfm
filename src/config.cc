@@ -169,7 +169,6 @@ bool config::update_option(const char *sect, const char *name, int value)
 int config::get_int(const char *path)
 {
 	int rval;
-	config_setting_t *group, *setting;
 
 	if (config_lookup_int(&cfg, path, &rval) == CONFIG_TRUE)
 		return rval;
@@ -181,7 +180,6 @@ vect_str config::get_string_list(const char *sect)
 {
 	config_setting_t *group;
 	vect_str rvalues;
-	char bm[7] = {"bm"};
 	const char *location;
 	int i, count;
 

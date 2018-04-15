@@ -51,7 +51,7 @@ string path::get_cur_folder()
 {
 	string rval = "";
 	string path = fs_path;
-	int x;
+	unsigned int x;
 
 	if ((x = path.rfind('/')) != string::npos)
 		rval = path.substr(x + 1);
@@ -61,13 +61,14 @@ string path::get_cur_folder()
 
 string path::ls_normalize(const string &path)
 {
-	int x, cur = 0;
+	size_t x;
+	unsigned cur = 0;
 	string ls_path = path;
 
 	while ((x = ls_path.find(' ', cur)) != string::npos) {
 		if (ls_path[x - 1] != '\\')
 			ls_path.insert(x, "\\");
-		if (x < ls_path.size())
+		if ((unsigned int)x < ls_path.size())
 			cur = x + 1;
 		else
 			break;
@@ -75,4 +76,3 @@ string path::ls_normalize(const string &path)
 
 	return ls_path;
 }
-

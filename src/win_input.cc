@@ -59,7 +59,7 @@ int text_editor::handle(int e)
 		}
 	}
 
-	Fl_Text_Editor::handle(e);
+	return Fl_Text_Editor::handle(e);
 }
 
 win_input::win_input(int x, int y, int w, int h, const string &text)

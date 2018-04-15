@@ -48,6 +48,7 @@ private:
 	void sort_column(int col, int reverse);
 
 private:
+	app &a;
 	vector<row> rowdata;
 	string selected;
 	string clip_op_src;
@@ -56,7 +57,6 @@ private:
 	int sort_reverse;
 	int sort_lastcol;
 	int cl_op;
-	app &a;
 };
 
 #endif /* __table_files_hh__ */

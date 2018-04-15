@@ -26,8 +26,7 @@
 #include "toolbar.hh"
 #include "input.hh"
 #include "config.hh"
-
-#include <globals.hh>
+#include "globals.hh"
 
 constexpr int window_border = 2;
 constexpr int command_bar_height = 22;
@@ -37,6 +36,8 @@ win_main::win_main(int w, int h) : Fl_Window(w, h, "mfm")
 {
 	s.width = w;
 	s.height = h;
+
+	Fl_Window::icon(get_application_icon());
 
 	begin();
 

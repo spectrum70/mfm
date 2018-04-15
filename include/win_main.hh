@@ -13,7 +13,7 @@ class table_files;
 class toolbar;
 class input;
 
-struct win_main : public Fl_Window
+struct win_main : public Fl_Window, public graphic::app_icon
 {
 	win_main(int width, int height);
 
