@@ -8,6 +8,6 @@
 #ifndef __version_hh__
 #define __version_hh__
 
-#define VERSION		"001(alpha)"
+#define VERSION		"002"
 
 #endif /* __version_hh__ */
