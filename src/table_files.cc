@@ -286,6 +286,29 @@ void table_files::move_selection_down()
 	set_selection(row_top, col_left, row_bot, col_right);
 }
 
+void table_files::create_folder()
+{
+	string new_name;
+
+	win_input i(parent()->x() + 140,
+		    parent()->y() + 40, 300, 24, "New folder");
+
+	i.clear_border();
+	i.show();
+
+	while (i.shown() && !i.updated())
+		Fl::wait();
+
+	i.hide();
+
+	new_name = i.updated_text();
+	new_name.resize(new_name.size() - 1);
+	new_name = string(fs_path) + "/" + new_name;
+
+	system((string("mkdir ") + new_name).c_str());
+	load_dir();
+}
+
 void table_files::rename()
 {
 	string new_name, src, dst;
@@ -294,14 +317,14 @@ void table_files::rename()
 	get_selection(row_top, col_left, row_bot, col_right);
 
 	win_input i(parent()->x() + x(),
-		parent()->y() + y() + (row_bot * (12 + 3)) + 12, 300, 24, selected);
+		    parent()->y() + y() + (row_bot * (12 + 3)) + 12, 300, 24,
+		    selected);
 
 	i.clear_border();
 	i.show();
 
-	while (i.shown() && !i.updated()) {
+	while (i.shown() && !i.updated())
 		Fl::wait();
-	}
 
 	i.hide();
 

@@ -50,6 +50,7 @@ enum {
 	id_paste,
 	id_user_home,
 	id_arrow_up,
+	id_folder_new,
 	id_bookmark_new,
 	id_help,
 	id_about,
@@ -98,6 +99,7 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	p[id_paste] = make_shared<Fl_Pixmap>(xpm_icon_paste);
 	p[id_user_home] = make_shared<Fl_Pixmap>(xpm_icon_user_home);
 	p[id_arrow_up] = make_shared<Fl_Pixmap>(xpm_icon_arrow_up);
+	p[id_folder_new] = make_shared<Fl_Pixmap>(xpm_icon_folder_new);
 	p[id_bookmark_new] = make_shared<Fl_Pixmap>(xpm_icon_bookmark_new);
 	p[id_help] = make_shared<Fl_Pixmap>(xpm_icon_help);
 	p[id_about] = make_shared<Fl_Pixmap>(xpm_icon_about);
@@ -109,6 +111,8 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	add_separator();
 	add_button("home", p[id_user_home]);
 	add_button("move up", p[id_arrow_up]);
+	add_separator();
+	add_button("new folder", p[id_folder_new]);
 	add_separator();
 	add_button("add bookmark", p[id_bookmark_new]);
 	add_separator();
@@ -154,6 +158,8 @@ int toolbar::handle(int event)
 					(name + "," + path).c_str());
 			a.tl->insert(name, path);
 			config::get().save_config();
+		} else if (Fl::pushed() == b[id_folder_new].get()) {
+			a.tf->create_folder();
 		} else if (Fl::pushed() == b[id_help].get()) {
 			win_help *hlp = new win_help(400, 400);
 			hlp->set_modal();
