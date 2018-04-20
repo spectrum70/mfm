@@ -41,8 +41,10 @@ private:
 	static void __handle_rmenu(Fl_Widget *w, void *data)
 	{ ((table_files*)data)->handle_rmenu(w); }
 
+	int handle(int event);
 	void event_callback();
 	void handle_rmenu(Fl_Widget *);
+	void dnd_initiate();
 	void draw_cell(TableContext context, int R = 0, int C = 0,
 				int X = 0, int Y = 0, int W = 0, int H = 0);
 	void draw_sort_arrow(int X, int Y, int W, int H);

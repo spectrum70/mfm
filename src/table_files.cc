@@ -181,6 +181,53 @@ void table_files::handle_rmenu(Fl_Widget *w)
 	}
 }
 
+void table_files::dnd_initiate()
+{
+	int R = callback_row();
+	char *url = new char[512];
+	string drag_selected;
+
+	memset(url, 0, 512);
+
+	drag_selected = fs_path.c_str();
+	drag_selected += "/";
+	drag_selected += rowdata[R].cols[1];
+
+	sprintf(url, "file://%s\r\n",
+		  		drag_selected.c_str());
+	Fl::copy(url, strlen(url) + 1, 2);
+
+	// At this point FLTK's system wide DnD kicks in and we lose all control
+ 	Fl::dnd();
+
+	delete [] url;
+}
+
+int table_files::handle(int event)
+{
+	switch (event) {
+	case FL_DND_ENTER:
+		//printf("dnd enter\n");
+	return 1;
+	case FL_DND_RELEASE:
+		//printf("dnd release\n");
+	return 1;
+	case FL_DND_LEAVE:
+		//printf("dnd drag\n");
+	return 1;
+	case FL_DND_DRAG:
+		/* from outside */
+	return 1;
+	case FL_DRAG:
+		dnd_initiate();
+	return 1;
+	case FL_PASTE:
+	return 1;
+	}
+
+	return Fl_Table_Row::handle(event);
+}
+
 void table_files::event_callback()
 {
 	int R = callback_row();
