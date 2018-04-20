@@ -205,6 +205,8 @@ void table_files::dnd_initiate()
 
 int table_files::handle(int event)
 {
+	Fl_Table::handle(event);
+
 	switch (event) {
 	case FL_DND_ENTER:
 		//printf("dnd enter\n");
@@ -364,7 +366,7 @@ void table_files::rename()
 	get_selection(row_top, col_left, row_bot, col_right);
 
 	win_input i(parent()->x() + x(),
-		    parent()->y() + y() + (row_bot * (12 + 3)) + 12, 300, 24,
+		    parent()->y() + (row_bot * (12 + 3)) + 45, 300, 24,
 		    selected);
 
 	i.clear_border();
