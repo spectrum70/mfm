@@ -24,6 +24,7 @@
 #include "table_files.hh"
 #include "input.hh"
 #include "config.hh"
+#include "pixmaps.hh"
 
 #include <list>
 #include <FL/fl_draw.H>
@@ -150,11 +151,14 @@ void table_locations::draw_cell(TableContext context,
 		fl_push_clip(X, Y, W, H); {
 			Fl_Color bgcolor = row_selected(R) ?
 					selection_color() : FL_WHITE;
+			Fl_Pixmap pm(xpm_folder_blue);
+
 			fl_color(bgcolor);
 			fl_rectf(X, Y, W, H);
+			pm.draw(X + 2, Y, 16, 16);
 			fl_font(font_face_row, font_size_row);
 			fl_color(FL_BLACK);
-			fl_draw(s, X + 2, Y, W, H, FL_ALIGN_LEFT |
+			fl_draw(s, X + 19, Y, W, H, FL_ALIGN_LEFT |
 					FL_ALIGN_BOTTOM);
 			// Border
 			fl_color(250, 250, 250);

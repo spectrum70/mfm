@@ -13,4 +13,6 @@ extern const char *xpm_icon_bookmark_new[];
 extern const char *xpm_icon_help[];
 extern const char *xpm_icon_about[];
 
+extern const char *xpm_folder_blue[];
+
 #endif /* __pixmaps_hh__ */
