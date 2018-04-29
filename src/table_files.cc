@@ -205,8 +205,6 @@ void table_files::dnd_initiate()
 
 int table_files::handle(int event)
 {
-	Fl_Table::handle(event);
-
 	switch (event) {
 	case FL_DND_ENTER:
 		//printf("dnd enter\n");
@@ -278,6 +276,19 @@ void table_files::event_callback()
 				move_selection_up();
 			else if (Fl::event_key() == FL_Down)
 				move_selection_down();
+			else if (Fl::event_key() == FL_Left) {
+				if (fs_path != "/")
+					update_path("..");
+				load_dir();
+				/* avoid to lose focus */
+				set_selection(1, 1, 1, 1);
+				select_row(1, 1);
+			} else if (Fl::event_key() == FL_Right) {
+				if (rowdata[R].cols[5][0] == 'd') {
+					update_path(rowdata[R].cols[1]);
+					load_dir();
+				}
+			}
 
 			selected = rowdata[R].cols[1];
 
@@ -318,9 +329,8 @@ void table_files::move_selection_up()
 	if (row_top < 0)
 		return;
 
-	select_row(row_top + 1, 0);
+	select_row(row_top - 1, 0);
 	select_row(row_top, 1);
-
 	set_selection(row_top, col_left, row_bot, col_right);
 }
 
@@ -329,8 +339,7 @@ void table_files::move_selection_down()
 	int row_top, col_left, row_bot, col_right;
 
 	get_selection(row_top, col_left, row_bot, col_right);
-
-	select_row(row_top - 1, 0);
+	select_row(row_top + 1, 0);
 	select_row(row_top, 1);
 	set_selection(row_top, col_left, row_bot, col_right);
 }

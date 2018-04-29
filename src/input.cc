@@ -32,6 +32,8 @@ input::input(int X, int Y, int W, int H, app &ptrs)
 	textsize(11);
 	textfont(FL_HELVETICA);
 
+	Fl::option(Fl::OPTION_ARROW_FOCUS, 0);
+
 	when(FL_WHEN_ENTER_KEY_ALWAYS | FL_WHEN_CHANGED);
 	callback(__cb_input, (void*)this);
 }

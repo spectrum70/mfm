@@ -41,6 +41,8 @@ win_main::win_main(int w, int h) : Fl_Window(w, h, "mfm")
 
 	begin();
 
+	Fl::option(Fl::OPTION_ARROW_FOCUS, 0);
+
 	ptrs.wm = this;
 	ptrs.tb = make_shared<toolbar>(0, 2, s.width, command_bar_height, ptrs);
 
