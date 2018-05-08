@@ -75,12 +75,6 @@ int win_main::handle(int event)
 			/* key pressed handled here */
 			ptrs.tf->trash();
 			break;
-		case FL_Enter: {
-			string selected = ptrs.tf->get_selected();
-			ptrs.tf->open_file(selected);
-			focus(ptrs.tf.get());
-			}
-			break;
 		case 'c':
 			if (Fl::get_key(FL_Control_L) ||
 					Fl::get_key(FL_Control_R)) {

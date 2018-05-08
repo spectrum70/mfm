@@ -110,6 +110,7 @@ table_files::table_files(int x, int y, int w, int h, app &ptrs)
 	selection_color(FL_YELLOW);
 	color(FL_WHITE);
 
+	when(FL_WHEN_NOT_CHANGED | FL_WHEN_ENTER_KEY);
 	callback(__event_callback, (void*)this);
 
 	focus(this);
@@ -234,8 +235,8 @@ void table_files::event_callback()
 	int C = callback_col();
 	TableContext context = callback_context();
 
-	switch ( context ) {
-	case CONTEXT_COL_HEADER: {
+	switch (context) {
+	case CONTEXT_COL_HEADER:
 		// someone clicked on column header
 		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1 ) {
 			if (sort_lastcol == C) {
@@ -246,9 +247,17 @@ void table_files::event_callback()
 			sort_column(C, sort_reverse);
 			sort_lastcol = C;
 		}
-		break;
+		return;
+	default:
+		return;
 	case CONTEXT_CELL:
-		if (Fl::event() == FL_RELEASE && Fl::event_button() == 3) {
+		break;
+	}
+
+	/* We are CONTEXT_CELL here */
+	switch (Fl::event()) {
+	case FL_RELEASE:
+		if ( Fl::event_button() == 3) {
 			select_row(R, 1);
 			set_selection(R, 0, R, -1);
 			selected = rowdata[R].cols[1];
@@ -271,33 +280,40 @@ void table_files::event_callback()
 				m->do_callback((Fl_Widget *)m, m->user_data());
 				load_dir();
 			}
-		} else if (Fl::event() == FL_KEYDOWN) {
-			if (Fl::event_key() == FL_Up)
-				move_selection_up();
-			else if (Fl::event_key() == FL_Down)
-				move_selection_down();
-			else if (Fl::event_key() == FL_Left) {
-				if (fs_path != "/")
-					update_path("..");
-				load_dir();
-				/* avoid to lose focus */
-				set_selection(1, 1, 1, 1);
-				select_row(1, 1);
-			} else if (Fl::event_key() == FL_Right) {
-				if (rowdata[R].cols[5][0] == 'd') {
-					update_path(rowdata[R].cols[1]);
-					load_dir();
-				}
-			}
-
-			selected = rowdata[R].cols[1];
-
-			return;
 		}
-		if (Fl::event() != FL_RELEASE || Fl::event_button() != 1)
-			return;
-		if (C != 1)
-			return;
+		break;
+
+	case FL_KEYDOWN:
+		if (Fl::event_key() == FL_Up)
+			move_selection_up();
+		else if (Fl::event_key() == FL_Down)
+			move_selection_down();
+		else if (Fl::event_key() == FL_Left) {
+			if (fs_path != "/")
+				update_path("..");
+			load_dir();
+			/* avoid to lose focus */
+			set_selection(1, 1, 1, 1);
+			select_row(1, 1);
+		} else if (Fl::event_key() == FL_Right) {
+			if (rowdata[R].cols[5][0] == 'd') {
+				update_path(rowdata[R].cols[1]);
+				load_dir();
+			}
+		} else if (Fl::event_key() == FL_Enter) {
+			if (rowdata[R].cols[5][0] != 'd')
+				open_file(selected);
+			else {
+				update_path(rowdata[R].cols[1]);
+				load_dir();
+			}
+			focus(this);
+		}
+		selected = rowdata[R].cols[1];
+		return;
+
+	case FL_PUSH:
+		/* mouse events */
 		if (rowdata[R].cols[5][0] == 'd') {
 			update_path(rowdata[R].cols[1]);
 			load_dir();
@@ -311,12 +327,11 @@ void table_files::event_callback()
 			}
 			open_file(selected);
 		}
+
 		/* invalidating */
 		selected = "";
+
 		break;
-	}
-	default:
-	return;
 	}
 }
 
