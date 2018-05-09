@@ -43,19 +43,6 @@ using std::string;
 
 constexpr int butt_size = 20;
 
-enum {
-	id_trash,
-	id_copy,
-	id_cut,
-	id_paste,
-	id_user_home,
-	id_arrow_up,
-	id_folder_new,
-	id_bookmark_new,
-	id_help,
-	id_about,
-};
-
 struct toolbar_button : public Fl_Button
 {
 	toolbar_button(int X, int Y, int W, int H);
@@ -98,6 +85,7 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	p[id_cut] = make_shared<Fl_Pixmap>(xpm_icon_cut);
 	p[id_paste] = make_shared<Fl_Pixmap>(xpm_icon_paste);
 	p[id_user_home] = make_shared<Fl_Pixmap>(xpm_icon_user_home);
+	p[id_refresh] = make_shared<Fl_Pixmap>(xpm_icon_refresh);
 	p[id_arrow_up] = make_shared<Fl_Pixmap>(xpm_icon_arrow_up);
 	p[id_folder_new] = make_shared<Fl_Pixmap>(xpm_icon_folder_new);
 	p[id_bookmark_new] = make_shared<Fl_Pixmap>(xpm_icon_bookmark_new);
@@ -110,6 +98,8 @@ toolbar::toolbar(int X, int Y, int W, int H, app &ptrs)
 	add_button("paste", p[id_paste]);
 	add_separator();
 	add_button("home", p[id_user_home]);
+	add_button("home", p[id_refresh]);
+	add_separator();
 	add_button("move up", p[id_arrow_up]);
 	add_separator();
 	add_button("new folder", p[id_folder_new]);
@@ -144,6 +134,8 @@ int toolbar::handle(int event)
 			string home = a.tf->get_home_path();
 			a.i->value(home.c_str());
 			a.tf->load_dir(home.c_str());
+		} else if (Fl::pushed() == b[id_refresh].get()) {
+			a.tf->load_dir();
 		} else if (Fl::pushed() == b[id_arrow_up].get()) {
 			a.tf->update_path("..");
 			a.tf->load_dir();

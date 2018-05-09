@@ -18,6 +18,7 @@ struct path : public fs {
 	string get_cur_path() { return fs_path; }
 	string get_cur_folder();
 	string ls_normalize(const string &path);
+	string ls_real(const string &path);
 	bool remove_folder(const string &path);
 
 protected:

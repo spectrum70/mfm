@@ -10,6 +10,7 @@ extern const char *xpm_icon_user_home[];
 extern const char *xpm_icon_arrow_up[];
 extern const char *xpm_icon_folder_new[];
 extern const char *xpm_icon_bookmark_new[];
+extern const char *xpm_icon_refresh[];
 extern const char *xpm_icon_help[];
 extern const char *xpm_icon_about[];
 

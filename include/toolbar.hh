@@ -11,8 +11,22 @@ class Fl_Pixmap;
 class Fl_Box;
 class toolbar_button;
 
-constexpr int max_buttons = 10;
-constexpr int max_seps = 4;
+enum {
+	id_trash,
+	id_copy,
+	id_cut,
+	id_paste,
+	id_user_home,
+	id_refresh,
+	id_arrow_up,
+	id_folder_new,
+	id_bookmark_new,
+	id_help,
+	id_about,
+	id_max,
+};
+
+constexpr int max_seps = 5;
 
 struct toolbar : public Fl_Pack
 {
@@ -24,8 +38,8 @@ private:
 	int handle(int event);
 
 private:
-	shared_ptr<toolbar_button> b[max_buttons];
-	shared_ptr<Fl_Pixmap> p[max_buttons];
+	shared_ptr<toolbar_button> b[id_max];
+	shared_ptr<Fl_Pixmap> p[id_max];
 	shared_ptr<Fl_Box> seps[max_seps];
 
 	app &a;

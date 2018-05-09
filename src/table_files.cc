@@ -41,7 +41,7 @@ constexpr int font_size_row = 11;
 constexpr int max_username_len = 32;
 
 constexpr int COLUMNS = 9;
-constexpr int LS_OUT_COLS = 11;
+constexpr int LS_OUT_COLS = 9;
 
 static const char *header[] = {
 		"cnt",
@@ -235,6 +235,34 @@ void table_files::event_callback()
 	int C = callback_col();
 	TableContext context = callback_context();
 
+	/* Outside of any context, right button menu */
+	if (Fl::event() == FL_PUSH && Fl::event_button() == 3) {
+		select_row(R, 1);
+		set_selection(R, 0, R, -1);
+		selected = rowdata[R].cols[1];
+
+		Fl_Menu_Item rclick_menu[] = {
+			{"cut", FL_CTRL + 'z', __handle_rmenu, this},
+			{"copy", FL_CTRL + 'c', __handle_rmenu, this},
+			{"paste", FL_CTRL + 'v', __handle_rmenu, this,
+				FL_MENU_DIVIDER},
+			{"delete", FL_Delete, __handle_rmenu, this,
+				FL_MENU_DIVIDER},
+			{"rename", 0, __handle_rmenu, this},
+			{0}
+		};
+
+		const Fl_Menu_Item *m =
+			rclick_menu->popup(
+				Fl::event_x(), Fl::event_y(), 0, 0, 0);
+			if (m) {
+			m->do_callback((Fl_Widget *)m, m->user_data());
+			load_dir();
+		}
+
+		return;
+	}
+
 	switch (context) {
 	case CONTEXT_COL_HEADER:
 		// someone clicked on column header
@@ -256,33 +284,6 @@ void table_files::event_callback()
 
 	/* We are CONTEXT_CELL here */
 	switch (Fl::event()) {
-	case FL_RELEASE:
-		if ( Fl::event_button() == 3) {
-			select_row(R, 1);
-			set_selection(R, 0, R, -1);
-			selected = rowdata[R].cols[1];
-
-			Fl_Menu_Item rclick_menu[] = {
-				{"cut", FL_CTRL + 'z', __handle_rmenu, this},
-				{"copy", FL_CTRL + 'c', __handle_rmenu, this},
-				{"paste", FL_CTRL + 'v', __handle_rmenu, this,
-					FL_MENU_DIVIDER},
-				{"delete", FL_Delete, __handle_rmenu, this,
-					FL_MENU_DIVIDER},
-				{"rename", 0, __handle_rmenu, this},
-				{0}
-			};
-
-			const Fl_Menu_Item *m =
-				rclick_menu->popup(
-					Fl::event_x(), Fl::event_y(), 0, 0, 0);
-    			if (m) {
-				m->do_callback((Fl_Widget *)m, m->user_data());
-				load_dir();
-			}
-		}
-		break;
-
 	case FL_KEYDOWN:
 		if (Fl::event_key() == FL_Up)
 			move_selection_up();
@@ -407,6 +408,8 @@ void table_files::rename()
 	src = string(fs_path) + "/" + selected;
 	dst = string(fs_path) + "/" + new_name;
 
+	src = ls_real(src);
+
 	::rename(src.c_str(), dst.c_str());
 	load_dir();
 }
@@ -488,7 +491,7 @@ void table_files::load_dir(const char *path)
 {
 	char s[512];
 	char n[16];
-	const int remap[LS_OUT_COLS] = {5, 0, 6, 7, 2, 3, 0, 4, 1, 0, 0};
+	const int remap[LS_OUT_COLS] = {5, 0, 6, 7, 2, 3, 0, 4, 1};
 
 	rowdata.clear();
 
@@ -497,7 +500,7 @@ void table_files::load_dir(const char *path)
 
 	a.i->value(fs_path.c_str());
 
-	strcpy(s, "ls -alh ");
+	strcpy(s, "ls -alhb ");
 	strcat(s, ls_normalize(fs_path).c_str());
 
 	FILE *fp = popen(s, "r");
@@ -546,20 +549,25 @@ void table_files::load_dir(const char *path)
 			}
 
 			if (t == 5) {
-				strcpy(n, ss);
+				if (ss)
+					strcpy(n, ss);
 			} else if (t == 6) {
-				strcat(n, " ");
-				strcat(n, ss);
-				rc[remap[5]] = strdup(n);
+				if (ss) {
+					strcat(n, " ");
+					strcat(n, ss);
+					rc[remap[5]] = strdup(n);
+				}
 			}
 
-			if (remap[t])
+			if (remap[t] && ss) {
 				rc[remap[t]] = (strdup(ss));
+			}
 		}
 		// Keep track of max # columns
 		if ((int)rc.size() > cols() )
 			cols((int)rc.size());
 	}
+
 	// How many rows we loaded
 	rows((int)rowdata.size());
 

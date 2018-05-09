@@ -79,6 +79,23 @@ string path::ls_normalize(const string &path)
 	return ls_path;
 }
 
+string path::ls_real(const string &path)
+{
+	size_t x;
+	unsigned cur = 0;
+	string ls_path = path;
+
+	while ((x = ls_path.find('\\', cur)) != string::npos) {
+		if (ls_path[x + 1] == 'n') {
+			ls_path.erase(x, 2);
+			ls_path.insert(x, "\n");
+			x++;
+		}
+	}
+
+	return ls_path;
+}
+
 bool path::remove_folder(const string &path)
 {
 	std::error_code err_code;
