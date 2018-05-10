@@ -206,24 +206,21 @@ void table_files::dnd_initiate()
 
 int table_files::handle(int event)
 {
+	//Fl_Table::handle(event);
+	TableContext context = callback_context();
+
 	switch (event) {
-	case FL_DND_ENTER:
-		//printf("dnd enter\n");
-	return 1;
-	case FL_DND_RELEASE:
-		//printf("dnd release\n");
-	return 1;
-	case FL_DND_LEAVE:
-		//printf("dnd drag\n");
-	return 1;
-	case FL_DND_DRAG:
-		/* from outside */
-	return 1;
 	case FL_DRAG:
-		dnd_initiate();
-	return 1;
+		/* Do not allow drag on header */
+		if (context == CONTEXT_CELL)
+			dnd_initiate();
+		break;
+	case FL_DND_ENTER:
+	case FL_DND_RELEASE:
+	case FL_DND_LEAVE:
+	case FL_DND_DRAG:
 	case FL_PASTE:
-	return 1;
+		break;
 	}
 
 	return Fl_Table_Row::handle(event);
@@ -235,38 +232,10 @@ void table_files::event_callback()
 	int C = callback_col();
 	TableContext context = callback_context();
 
-	/* Outside of any context, right button menu */
-	if (Fl::event() == FL_PUSH && Fl::event_button() == 3) {
-		select_row(R, 1);
-		set_selection(R, 0, R, -1);
-		selected = rowdata[R].cols[1];
-
-		Fl_Menu_Item rclick_menu[] = {
-			{"cut", FL_CTRL + 'z', __handle_rmenu, this},
-			{"copy", FL_CTRL + 'c', __handle_rmenu, this},
-			{"paste", FL_CTRL + 'v', __handle_rmenu, this,
-				FL_MENU_DIVIDER},
-			{"delete", FL_Delete, __handle_rmenu, this,
-				FL_MENU_DIVIDER},
-			{"rename", 0, __handle_rmenu, this},
-			{0}
-		};
-
-		const Fl_Menu_Item *m =
-			rclick_menu->popup(
-				Fl::event_x(), Fl::event_y(), 0, 0, 0);
-			if (m) {
-			m->do_callback((Fl_Widget *)m, m->user_data());
-			load_dir();
-		}
-
-		return;
-	}
-
 	switch (context) {
 	case CONTEXT_COL_HEADER:
 		// someone clicked on column header
-		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1 ) {
+		if (Fl::event() == FL_PUSH && Fl::event_button() == 1) {
 			if (sort_lastcol == C) {
 				sort_reverse ^= 1;
 			} else {
@@ -276,8 +245,10 @@ void table_files::event_callback()
 			sort_lastcol = C;
 		}
 		return;
+
 	default:
 		return;
+	case CONTEXT_TABLE:
 	case CONTEXT_CELL:
 		break;
 	}
@@ -314,6 +285,37 @@ void table_files::event_callback()
 		return;
 
 	case FL_PUSH:
+		if (Fl::event_button() == 3) {
+			select_row(R, 1);
+			set_selection(R, 0, R, -1);
+			selected = rowdata[R].cols[1];
+
+			Fl_Menu_Item rclick_menu[] = {
+				{"cut", FL_CTRL + 'z', __handle_rmenu, this},
+				{"copy", FL_CTRL + 'c', __handle_rmenu, this},
+				{"paste", FL_CTRL + 'v', __handle_rmenu, this,
+					FL_MENU_DIVIDER},
+				{"delete", FL_Delete, __handle_rmenu, this,
+					FL_MENU_DIVIDER},
+				{"rename", 0, __handle_rmenu, this},
+				{0}
+			};
+
+			const Fl_Menu_Item *m =
+				rclick_menu->popup(
+					Fl::event_x(), Fl::event_y(), 0, 0, 0);
+				if (m) {
+				m->do_callback((Fl_Widget *)m, m->user_data());
+				load_dir();
+			}
+
+			return;
+		}
+
+		/* Don't handle context table */
+		if (context == CONTEXT_TABLE)
+			return;
+
 		/* mouse events */
 		if (rowdata[R].cols[5][0] == 'd') {
 			update_path(rowdata[R].cols[1]);
@@ -517,7 +519,7 @@ void table_files::load_dir(const char *path)
 		rowdata.push_back(r);
 
 		vector<char*> &rc = rowdata[i - 1].cols;
-		rc.resize(COLUMNS + 1);
+		rc.resize(COLUMNS);
 
 		// Break the line
 		for (int t = 0; t < LS_OUT_COLS; t++) {
