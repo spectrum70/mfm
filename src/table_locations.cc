@@ -53,6 +53,7 @@ table_locations::table_locations(int x, int y, int w, int h, app &ptrs)
 	color(FL_WHITE);
 
 	load_locations();
+	load_disks();
 	/* important, after first load dir */
 	row_height_all(15);
 
@@ -72,6 +73,8 @@ void table_locations::event_callback()
 	switch (context) {
 	case CONTEXT_CELL:
 		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1) {
+			if (locations[R].second == ":sep")
+				return;
 			a.i->value(locations[R].second.c_str());
 			a.i->do_callback();
 		}
@@ -113,6 +116,29 @@ void table_locations::load_locations()
 		}
 	}
 
+	locations.push_back(loc_path("", ":sep"));
+
+	rows((int)locations.size());
+
+	redraw();
+}
+
+void table_locations::load_disks()
+{
+	string script = "for i in $(lsblk -r -oTYPE,NAME); do "
+			"echo \"$i\n\"; "
+			"done";
+
+	FILE *fp = popen(script.c_str(), "r");
+	char s[256];
+	for (int i = 0; fgets(s, sizeof(s) - 1, fp); i++ ) {
+		if (string(s) == "part\n") {
+			fgets(s, sizeof(s) - 1, fp);
+			fgets(s, sizeof(s) - 1, fp);
+			locations.push_back(loc_path(s, ":disk"));
+		}
+	}
+
 	rows((int)locations.size());
 
 	redraw();
@@ -130,9 +156,12 @@ void table_locations::draw_cell(TableContext context,
 		int R, int C, int X, int Y, int W, int H)
 {
 	const char *s = "";
+	const char *t = "";
 
-	if ( R < (int) locations.size())
+	if ( R < (int) locations.size()) {
 		s = locations[R].first.c_str();
+		t = locations[R].second.c_str();
+	}
 
 	switch (context) {
 	case CONTEXT_COL_HEADER:
@@ -149,20 +178,31 @@ void table_locations::draw_cell(TableContext context,
 		return;
 	case CONTEXT_CELL: {
 		fl_push_clip(X, Y, W, H); {
-			Fl_Color bgcolor = row_selected(R) ?
+			if (string(t) == ":sep") {
+				fl_color(FL_GRAY);
+				fl_draw(s, X + 19, Y, W, H, FL_ALIGN_LEFT |
+						FL_ALIGN_BOTTOM);
+				// Border
+				fl_color(250, 250, 250);
+				fl_rect(X, Y, W, H);
+			} else {
+				Fl_Color bgcolor = row_selected(R) ?
 					selection_color() : FL_WHITE;
-			Fl_Pixmap pm(xpm_folder_blue);
 
-			fl_color(bgcolor);
-			fl_rectf(X, Y, W, H);
-			pm.draw(X + 2, Y, 16, 16);
-			fl_font(font_face_row, font_size_row);
-			fl_color(FL_BLACK);
-			fl_draw(s, X + 19, Y, W, H, FL_ALIGN_LEFT |
-					FL_ALIGN_BOTTOM);
-			// Border
-			fl_color(250, 250, 250);
-			fl_rect(X, Y, W, H);
+				Fl_Pixmap pm((string(t) == ":disk") ?
+					xpm_icon_disk : xpm_folder_blue);
+
+				fl_color(bgcolor);
+				fl_rectf(X, Y, W, H);
+				pm.draw(X + 2, Y, 16, 16);
+				fl_font(font_face_row, font_size_row);
+				fl_color(FL_BLACK);
+				fl_draw(s, X + 19, Y, W, H, FL_ALIGN_LEFT |
+						FL_ALIGN_BOTTOM);
+				// Border
+				fl_color(250, 250, 250);
+				fl_rect(X, Y, W, H);
+			}
 		}
 		fl_pop_clip();
 		return;

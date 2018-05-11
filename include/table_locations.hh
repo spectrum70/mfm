@@ -23,6 +23,7 @@ struct table_locations : public Fl_Table_Row
 
 protected:
 	void load_locations();
+	void load_disks();
 	void draw_cell(TableContext context, int R = 0, int C = 0,
 			int X = 0, int Y = 0, int W = 0, int H = 0);
 

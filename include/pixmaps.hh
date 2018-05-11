@@ -15,5 +15,6 @@ extern const char *xpm_icon_help[];
 extern const char *xpm_icon_about[];
 
 extern const char *xpm_folder_blue[];
+extern const char *xpm_icon_disk[];
 
 #endif /* __pixmaps_hh__ */
