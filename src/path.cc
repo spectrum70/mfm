@@ -68,11 +68,10 @@ string path::ls_normalize(const string &path)
 	string ls_path = path;
 
 	while ((x = ls_path.find(' ', cur)) != string::npos) {
-		if (ls_path[x - 1] != '\\')
-			ls_path.insert(x, "\\");
-		if ((unsigned int)x < ls_path.size())
+		if (ls_path[x - 1] == '\\') {
+			ls_path.erase(x - 1, 1);
 			cur = x + 1;
-		else
+		} else
 			break;
 	}
 

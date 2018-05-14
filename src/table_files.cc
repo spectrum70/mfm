@@ -562,7 +562,9 @@ void table_files::load_dir(const char *path)
 			}
 
 			if (remap[t] && ss) {
-				rc[remap[t]] = (strdup(ss));
+				rc[remap[t]] =
+					strdup((char *)
+						ls_normalize(ss).c_str());
 			}
 		}
 		// Keep track of max # columns
