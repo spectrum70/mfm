@@ -413,9 +413,8 @@ void table_files::create_folder()
 	load_dir();
 }
 
-void table_files::rename()
+string table_files::input_on_selection()
 {
-	string new_name, src, dst;
 	int row_top, col_left, row_bot, col_right;
 
 	get_selection(row_top, col_left, row_bot, col_right);
@@ -423,7 +422,7 @@ void table_files::rename()
 
 	win_input i(parent()->x() + x(),
 		    parent()->y() + (row_bot * (12 + 3)) + 45,
-		    	width + 20, 24,
+			width + 20, 24,
 		    selected);
 
 	i.clear_border();
@@ -434,7 +433,14 @@ void table_files::rename()
 
 	i.hide();
 
-	new_name = i.updated_text();
+	return i.updated_text();
+}
+
+void table_files::rename()
+{
+	string new_name, src, dst;
+	
+	new_name = input_on_selection();
 	new_name.resize(new_name.size() - 1);
 
 	src = string(fs_path) + "/" + selected;
@@ -530,25 +536,7 @@ void table_files::paste()
 		fs f;
 
 		if (src_path == fs_path) {
-			int row_top, col_left, row_bot, col_right;
-
-			get_selection(row_top, col_left, row_bot, col_right);
-			int width = col_width(1);
-
-			win_input i(parent()->x() + x(),
-				    parent()->y() + (row_bot * (12 + 3)) + 45,
-				    	width + 20, 24,
-				    selected);
-
-			i.clear_border();
-			i.show();
-
-			while (i.shown() && !i.updated())
-				Fl::wait();
-
-			i.hide();
-
-			dest = i.updated_text();
+			dest = input_on_selection();
 		}
 
 		cmd = "cp ";
