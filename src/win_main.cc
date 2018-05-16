@@ -71,28 +71,6 @@ int win_main::handle(int event)
 {
 	if (event == FL_KEYDOWN) {
 		switch (Fl::event_key()) {
-		case FL_Delete:
-			/* key pressed handled here */
-			ptrs.tf->trash();
-			break;
-		case 'c':
-			if (Fl::get_key(FL_Control_L) ||
-					Fl::get_key(FL_Control_R)) {
-				ptrs.tf->copy();
-			}
-			break;
-		case 'v':
-			if (Fl::get_key(FL_Control_L) ||
-				Fl::get_key(FL_Control_R)) {
-				ptrs.tf->paste();
-			}
-			break;
-		case 'z':
-			if (Fl::get_key(FL_Control_L) ||
-				Fl::get_key(FL_Control_R)) {
-				ptrs.tf->cut();
-			}
-			break;
 		case FL_Up:
 		case FL_Down:
 			/*

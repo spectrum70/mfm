@@ -24,6 +24,8 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <pwd.h>
 
 fs::fs()
@@ -35,4 +37,16 @@ string fs::get_user_home()
 	struct passwd *pw = getpwuid(getuid());
 
 	return pw->pw_dir;
+}
+
+bool fs::is_dir(const char *name)
+{
+	struct stat sb;
+
+	if (stat(name, &sb) == 0) {
+		if ((sb.st_mode & S_IFMT) == S_IFDIR)
+			return true;
+	}
+
+	return false;
 }

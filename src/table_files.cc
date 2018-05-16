@@ -31,6 +31,7 @@
 
 #include <FL/fl_draw.H>
 #include <FL/fl_ask.H>
+#include <FL/Fl_Input.H>
 #include <FL/Fl_Menu_.H>
 #include <FL/Fl_Menu_Item.H>
 
@@ -206,7 +207,6 @@ void table_files::dnd_initiate()
 
 int table_files::handle(int event)
 {
-	//Fl_Table::handle(event);
 	TableContext context = callback_context();
 
 	switch (event) {
@@ -256,23 +256,50 @@ void table_files::event_callback()
 	/* We are CONTEXT_CELL here */
 	switch (Fl::event()) {
 	case FL_KEYDOWN:
-		if (Fl::event_key() == FL_Up)
+		switch (Fl::event_key()) {
+		case FL_Delete:
+			/* key pressed handled here */
+			trash();
+			break;
+		case 'c':
+			if (Fl::get_key(FL_Control_L) ||
+					Fl::get_key(FL_Control_R)) {
+				copy();
+			}
+			break;
+		case 'v':
+			if (Fl::get_key(FL_Control_L) ||
+				Fl::get_key(FL_Control_R)) {
+				paste();
+			}
+			break;
+		case 'z':
+			if (Fl::get_key(FL_Control_L) ||
+				Fl::get_key(FL_Control_R)) {
+				cut();
+			}
+			break;
+		case FL_Up:
 			move_selection_up();
-		else if (Fl::event_key() == FL_Down)
+			break;
+		case FL_Down:
 			move_selection_down();
-		else if (Fl::event_key() == FL_Left) {
+			break;
+		case FL_Left:
 			if (fs_path != "/")
 				update_path("..");
 			load_dir();
 			/* avoid to lose focus */
 			set_selection(1, 1, 1, 1);
 			select_row(1, 1);
-		} else if (Fl::event_key() == FL_Right) {
+			break;
+		case  FL_Right:
 			if (rowdata[R].cols[5][0] == 'd') {
 				update_path(rowdata[R].cols[1]);
 				load_dir();
 			}
-		} else if (Fl::event_key() == FL_Enter) {
+			break;
+		case  FL_Enter:
 			if (rowdata[R].cols[5][0] != 'd')
 				open_file(selected);
 			else {
@@ -280,6 +307,7 @@ void table_files::event_callback()
 				load_dir();
 			}
 			focus(this);
+			break;
 		}
 		selected = rowdata[R].cols[1];
 		return;
@@ -444,7 +472,26 @@ void table_files::trash(bool folder)
 
 void table_files::copy()
 {
-	clip_op_src = string(fs_path) + "/" + selected;
+	int R = callback_row();
+	char *url = new char[512];
+	string item_selected;
+
+	memset(url, 0, 512);
+
+	item_selected = fs_path.c_str();
+	item_selected += "/";
+	item_selected += rowdata[R].cols[1];
+
+	/*
+	 * FLTK has a limitation here. Whatever is in the clipboard is always
+	 * sent as text. So sending the path to a file might not actually send
+	 * the file, but just the path and filename. Some apps interprete that
+	 * correctly, some don't. On Unix, you may have better luck prepending
+	 * the word "file:" to the pathname.
+	 */
+	sprintf(url, "file://%s\r\n", item_selected.c_str());
+
+	Fl::copy(url, strlen(url), 1);
 
 	cl_op = cl_op_copy;
 
@@ -462,21 +509,32 @@ void table_files::cut()
 
 void table_files::paste()
 {
-	string cmd;
-	string dest;
+	string cmd, src, dest;
 	unsigned int x;
+	Fl_Input in(0, 0, 0, 0, 0);
 
-	if ((x = clip_op_src.rfind('/')) != string::npos) {
-		dest = clip_op_src.substr(x + 1);
-	}
+	Fl::paste(in, 1);
+
+	src = in.value();
+
+	/* Remove std prefix file:// */
+	src.erase(0, 7);
+
+	if ((x = src.rfind('/')) != string::npos)
+        	dest = src.substr(x + 1);
 
 	if (cl_op == cl_op_copy) {
+		fs f;
+
 		cmd = "cp ";
+		if (f.is_dir(src.c_str()))
+			cmd += "-a ";
+
 	} else if (cl_op == cl_op_cut) {
 		cmd = "mv ";
 	}
 
-	cmd += clip_op_src + " " + string(fs_path) + "/" + dest;
+	cmd += src + " " + string(fs_path) + "/" + dest;
 
 	system(cmd.c_str());
 
