@@ -509,8 +509,8 @@ void table_files::cut()
 
 void table_files::paste()
 {
-	string cmd, src, dest;
-	unsigned int x;
+	string cmd, src, dest, src_path;
+	unsigned int z;
 	Fl_Input in(0, 0, 0, 0, 0);
 
 	Fl::paste(in, 1);
@@ -520,11 +520,36 @@ void table_files::paste()
 	/* Remove std prefix file:// */
 	src.erase(0, 7);
 
-	if ((x = src.rfind('/')) != string::npos)
-        	dest = src.substr(x + 1);
+	if ((z = src.rfind('/')) != string::npos) {
+        	dest = src.substr(z + 1);
+		src_path = src.substr(0, z);
+	} else
+		return;
 
 	if (cl_op == cl_op_copy) {
 		fs f;
+
+		if (src_path == fs_path) {
+			int row_top, col_left, row_bot, col_right;
+
+			get_selection(row_top, col_left, row_bot, col_right);
+			int width = col_width(1);
+
+			win_input i(parent()->x() + x(),
+				    parent()->y() + (row_bot * (12 + 3)) + 45,
+				    	width + 20, 24,
+				    selected);
+
+			i.clear_border();
+			i.show();
+
+			while (i.shown() && !i.updated())
+				Fl::wait();
+
+			i.hide();
+
+			dest = i.updated_text();
+		}
 
 		cmd = "cp ";
 		if (f.is_dir(src.c_str()))
