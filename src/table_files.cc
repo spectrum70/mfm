@@ -391,9 +391,11 @@ void table_files::rename()
 	int row_top, col_left, row_bot, col_right;
 
 	get_selection(row_top, col_left, row_bot, col_right);
+	int width = col_width(1);
 
 	win_input i(parent()->x() + x(),
-		    parent()->y() + (row_bot * (12 + 3)) + 45, 300, 24,
+		    parent()->y() + (row_bot * (12 + 3)) + 45,
+		    	width + 20, 24,
 		    selected);
 
 	i.clear_border();
