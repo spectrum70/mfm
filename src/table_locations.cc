@@ -35,6 +35,9 @@ constexpr int font_face_header = FL_HELVETICA;
 constexpr int font_size_header = 11;
 constexpr int font_face_row = FL_HELVETICA;
 constexpr int font_size_row = 11;
+constexpr int font_face_sep = FL_HELVETICA | FL_BOLD | FL_ITALIC;
+
+static const Fl_Color color_bkgnd = fl_rgb_color(140, 255, 255);
 
 table_locations::table_locations(int x, int y, int w, int h, app &ptrs)
 : Fl_Table_Row(x, y, w, h), a(ptrs)
@@ -44,13 +47,13 @@ table_locations::table_locations(int x, int y, int w, int h, app &ptrs)
 	row_resize(0);
 
 	// Col init
-	col_header(1);
-	col_header_height(14);
+	col_header(0);
+
 	col_resize(1);
 	col_width(0, 160);
 
 	selection_color(FL_YELLOW);
-	color(FL_WHITE);
+	color(color_bkgnd);
 
 	load_locations();
 	load_disks();
@@ -107,6 +110,8 @@ void table_locations::load_locations()
 	cols(1);
 	locations.clear();
 
+	locations.push_back(loc_path("Bookmarks", ":sep"));
+
 	vect_str loc = config::get().get_string_list("bookmarks");
 
 	for (i = 0; i < loc.size(); ++i) {
@@ -116,7 +121,7 @@ void table_locations::load_locations()
 		}
 	}
 
-	locations.push_back(loc_path("", ":sep"));
+	locations.push_back(loc_path("Devices", ":sep"));
 
 	rows((int)locations.size());
 
@@ -179,15 +184,15 @@ void table_locations::draw_cell(TableContext context,
 	case CONTEXT_CELL: {
 		fl_push_clip(X, Y, W, H); {
 			if (string(t) == ":sep") {
-				fl_color(FL_GRAY);
-				fl_draw(s, X + 19, Y, W, H, FL_ALIGN_LEFT |
+				fl_color(color_bkgnd);
+				fl_rectf(X, Y, W, H);
+				fl_font(font_face_sep, font_size_row);
+				fl_color(FL_BLACK);
+				fl_draw(s, X + 4, Y, W, H, FL_ALIGN_LEFT |
 						FL_ALIGN_BOTTOM);
-				// Border
-				fl_color(250, 250, 250);
-				fl_rect(X, Y, W, H);
 			} else {
 				Fl_Color bgcolor = row_selected(R) ?
-					selection_color() : FL_WHITE;
+					selection_color() : color_bkgnd;
 
 				Fl_Pixmap pm((string(t) == ":disk") ?
 					xpm_icon_disk : xpm_folder_blue);
@@ -199,9 +204,6 @@ void table_locations::draw_cell(TableContext context,
 				fl_color(FL_BLACK);
 				fl_draw(s, X + 19, Y, W, H, FL_ALIGN_LEFT |
 						FL_ALIGN_BOTTOM);
-				// Border
-				fl_color(250, 250, 250);
-				fl_rect(X, Y, W, H);
 			}
 		}
 		fl_pop_clip();
