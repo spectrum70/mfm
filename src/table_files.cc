@@ -44,6 +44,8 @@ constexpr int max_username_len = 32;
 constexpr int COLUMNS = 9;
 constexpr int LS_OUT_COLS = 9;
 
+static const Fl_Color color_bkgnd = fl_rgb_color(255, 253, 231);
+
 static const char *header[] = {
 		"cnt",
 		"name",
@@ -109,7 +111,7 @@ table_files::table_files(int x, int y, int w, int h, app &ptrs)
 	type(Fl_Table_Row::SELECT_SINGLE);
 
 	selection_color(FL_YELLOW);
-	color(FL_WHITE);
+	color(color_bkgnd);
 
 	when(FL_WHEN_NOT_CHANGED | FL_WHEN_ENTER_KEY);
 	callback(__event_callback, (void*)this);
@@ -439,7 +441,7 @@ string table_files::input_on_selection()
 void table_files::rename()
 {
 	string new_name, src, dst;
-	
+
 	new_name = input_on_selection();
 	new_name.resize(new_name.size() - 1);
 
@@ -710,7 +712,7 @@ void table_files::draw_cell(TableContext context,
 		fl_push_clip(X, Y, W, H); {
 			// Bg color
 			Fl_Color bgcolor = row_selected(R) ?
-					selection_color() : FL_WHITE;
+					selection_color() : color_bkgnd;
 
 			if (C == 5) {
 				if (strcmp(&s[1], "rwxrwxrwx") == 0)
@@ -750,9 +752,6 @@ void table_files::draw_cell(TableContext context,
 
 			fl_draw(s, X + 2, Y, W, H, FL_ALIGN_LEFT |
 					FL_ALIGN_CENTER);
-			// Border
-			fl_color(250, 250, 250);
-			fl_rect(X, Y, W, H);
 		}
 		fl_pop_clip();
 		return;

@@ -37,7 +37,7 @@ constexpr int font_face_row = FL_HELVETICA;
 constexpr int font_size_row = 11;
 constexpr int font_face_sep = FL_HELVETICA | FL_BOLD | FL_ITALIC;
 
-static const Fl_Color color_bkgnd = fl_rgb_color(140, 255, 255);
+static const Fl_Color color_bkgnd = fl_rgb_color(255, 253, 231);
 
 table_locations::table_locations(int x, int y, int w, int h, app &ptrs)
 : Fl_Table_Row(x, y, w, h), a(ptrs)
