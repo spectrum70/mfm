@@ -44,7 +44,7 @@ constexpr int max_username_len = 32;
 constexpr int COLUMNS = 9;
 constexpr int LS_OUT_COLS = 9;
 
-static const Fl_Color color_bkgnd = fl_rgb_color(255, 253, 231);
+static const Fl_Color color_bkgnd = fl_rgb_color(238, 238, 238);
 
 static const char *header[] = {
 		"cnt",

@@ -37,7 +37,7 @@ constexpr int font_face_row = FL_HELVETICA;
 constexpr int font_size_row = 11;
 constexpr int font_face_sep = FL_HELVETICA | FL_BOLD | FL_ITALIC;
 
-static const Fl_Color color_bkgnd = fl_rgb_color(255, 253, 231);
+static const Fl_Color color_bkgnd = fl_rgb_color(238, 238, 238);
 
 table_locations::table_locations(int x, int y, int w, int h, app &ptrs)
 : Fl_Table_Row(x, y, w, h), a(ptrs)
@@ -78,7 +78,12 @@ void table_locations::event_callback()
 		if (Fl::event() == FL_RELEASE && Fl::event_button() == 1) {
 			if (locations[R].second == ":sep")
 				return;
-			a.i->value(locations[R].second.c_str());
+			string loc = locations[R].second.c_str();
+			if (locations[R].second.substr(0, 8) == ":disk:m:")
+				loc = locations[R].second.substr(8);
+			else
+				loc = locations[R].second.c_str();
+			a.i->value(loc.c_str());
 			a.i->do_callback();
 		}
 		break;
@@ -130,19 +135,46 @@ void table_locations::load_locations()
 
 void table_locations::load_disks()
 {
-	string script = "for i in $(lsblk -r -oTYPE,NAME); do "
-			"echo \"$i\n\"; "
-			"done";
-
-	FILE *fp = popen(script.c_str(), "r");
+	string script;
 	char s[256];
+
+	script = "df";
+	FILE *fp = popen(script.c_str(), "r");
+	vector<string> mounted;
 	for (int i = 0; fgets(s, sizeof(s) - 1, fp); i++ ) {
-		if (string(s) == "part\n") {
-			fgets(s, sizeof(s) - 1, fp);
-			fgets(s, sizeof(s) - 1, fp);
-			locations.push_back(loc_path(s, ":disk"));
-		}
+		string entry = s;
+		mounted.push_back(s);
 	}
+	fclose(fp);
+
+	script = "awk -F\" \" '{print $4}' /proc/partitions";
+	fp = popen(script.c_str(), "r");
+	for (int i = 0; fgets(s, sizeof(s) - 1, fp); i++ ) {
+		string q, entry = s;
+		if (entry[entry.size() - 1] == '\n')
+			entry.resize(entry.size() - 1);
+		if (entry == "name" || entry == "")
+			continue;
+		q = ":disk";
+
+		for (size_t j = 0; j < mounted.size(); ++j) {
+			if (mounted[j].find(entry) != string::npos) {
+				q += ":m:";
+
+				size_t x = mounted[j].rfind(' ');
+				if (x != string::npos) {
+					string mpath =
+						mounted[j].substr(x + 1);
+
+					mpath.resize(mpath.size() - 1);
+					q += mpath;
+					break;
+				}
+			}
+		}
+		locations.push_back(loc_path(s, q));
+	}
+	fclose(fp);
 
 	rows((int)locations.size());
 
@@ -191,15 +223,24 @@ void table_locations::draw_cell(TableContext context,
 				fl_draw(s, X + 4, Y, W, H, FL_ALIGN_LEFT |
 						FL_ALIGN_BOTTOM);
 			} else {
+				string e = t;
 				Fl_Color bgcolor = row_selected(R) ?
 					selection_color() : color_bkgnd;
 
-				Fl_Pixmap pm((string(t) == ":disk") ?
-					xpm_icon_disk : xpm_folder_blue);
-
 				fl_color(bgcolor);
 				fl_rectf(X, Y, W, H);
-				pm.draw(X + 2, Y, 16, 16);
+				if (e.substr(0, 5) == ":disk") {
+					if (e.substr(5, 2) == ":m") {
+						fl_color(FL_YELLOW);
+						fl_rectf(X + 2, Y, 16, 16);
+					}
+					Fl_Pixmap pm(xpm_icon_disk);
+					pm.draw(X + 2, Y, 16, 16);
+				} else {
+					Fl_Pixmap pm(xpm_folder_blue);
+					pm.draw(X + 2, Y, 16, 16);
+				}
+
 				fl_font(font_face_row, font_size_row);
 				fl_color(FL_BLACK);
 				fl_draw(s, X + 19, Y, W, H, FL_ALIGN_LEFT |
