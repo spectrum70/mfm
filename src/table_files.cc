@@ -191,6 +191,12 @@ void table_files::dnd_initiate()
 	char *url = new char[512];
 	string drag_selected;
 
+	if (R < 0 || !url)
+		return;
+
+	if (fs_path == "")
+		return;
+
 	memset(url, 0, 512);
 
 	drag_selected = fs_path.c_str();
