@@ -316,12 +316,17 @@ void table_files::event_callback()
 			}
 			focus(this);
 			break;
+		default:
+			return;
 		}
-		selected = rowdata[R].cols[1];
+		if (R >= 0)
+			selected = rowdata[R].cols[1];
 		return;
 
 	case FL_PUSH:
 		if (Fl::event_button() == 3) {
+			if (R < 0)
+				return;
 			select_row(R, 1);
 			set_selection(R, 0, R, -1);
 			selected = rowdata[R].cols[1];
@@ -514,9 +519,13 @@ void table_files::copy()
 
 void table_files::cut()
 {
-	clip_op_src = string(fs_path) + "/" + selected;
+	string op_src = "file://";
+
+	op_src += string(fs_path) + "/" + selected;
 
 	cl_op = cl_op_cut;
+
+	Fl::copy(op_src.c_str(), op_src.size(), 1);
 
 	focus(this);
 }
@@ -556,9 +565,7 @@ void table_files::paste()
 	}
 
 	cmd += src + " " + string(fs_path) + "/" + dest;
-
 	system(cmd.c_str());
-
 	load_dir();
 
 	focus(this);
