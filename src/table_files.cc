@@ -324,8 +324,9 @@ void table_files::event_callback()
 		return;
 
 	case FL_PUSH:
+
 		if (Fl::event_button() == 3) {
-			if (R < 0)
+			if (rowdata.size() < (size_t)(R + 1))
 				return;
 			select_row(R, 1);
 			set_selection(R, 0, R, -1);
@@ -501,6 +502,10 @@ void table_files::copy()
 	item_selected += "/";
 	item_selected += rowdata[R].cols[1];
 
+	printf("item_selected :%s\n", item_selected.c_str());
+
+	item_selected = delimit_if_spaces(item_selected);
+
 	/*
 	 * FLTK has a limitation here. Whatever is in the clipboard is always
 	 * sent as text. So sending the path to a file might not actually send
@@ -595,7 +600,10 @@ void table_files::load_dir(const char *path)
 
 	FILE *fp = popen(s, "r");
 	cols(0);
-	for (int i = 0; fgets(s, sizeof(s) - 1, fp); i++ ) {
+	for (int i = 0 ;; i++ ) {
+		if (fgets(s, sizeof(s) - 1, fp) != s)
+			break;
+
 		// Add a new row
 		row r;
 		char *ss;
@@ -700,8 +708,11 @@ void table_files::draw_cell(TableContext context,
 {
 	const char *s = "";
 
-	if ( R < (int) rowdata.size() && C < (int)rowdata[R].cols.size() )
+	if (R < (int) rowdata.size() && C < (int)rowdata[R].cols.size())
 		s = rowdata[R].cols[C];
+
+	if (R < 0 || C < 0 || X < 0 || Y < 0 || W < 0 || H < 0)
+		return;
 
 	switch (context) {
 	case CONTEXT_COL_HEADER:
@@ -739,6 +750,8 @@ void table_files::draw_cell(TableContext context,
 			if (C == 0) {
 				fl_color(130, 130, 130);
 			} else if (C == 1) {
+				if (rowdata.size() < (size_t)(R + 1))
+					return;
 				if (rowdata[R].cols[5][0] == 'd') {
 					if (s[0] == '.' && s[1] != 0)
 						fl_color(130, 130, 230);

@@ -95,6 +95,19 @@ string path::ls_real(const string &path)
 	return ls_path;
 }
 
+string path::delimit_if_spaces(const string &path)
+{
+	size_t x;
+	unsigned cur = 0;
+	string ls_path = path;
+
+	if ((x = ls_path.find(' ', cur)) != string::npos) {
+		ls_path.insert(x, "\\");
+	}
+
+	return ls_path;
+}
+
 bool path::remove_folder(const string &path)
 {
 	std::error_code err_code;

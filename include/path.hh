@@ -19,6 +19,7 @@ struct path : public fs {
 	string get_cur_folder();
 	string ls_normalize(const string &path);
 	string ls_real(const string &path);
+	string delimit_if_spaces(const string &path);
 	bool remove_folder(const string &path);
 
 protected:
