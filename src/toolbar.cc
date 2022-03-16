@@ -145,7 +145,7 @@ int toolbar::handle(int event)
 			char bm[6] = {"bm"};
 			int count = a.tl->rows();
 
-			sprintf(&bm[2], "%03d", count + 1);
+			sprintf(&bm[2], "%03d", (count + 1) % 100);
 			config::get().add_option("bookmarks", bm,
 					(name + "," + path).c_str());
 			a.tl->insert(name, path);

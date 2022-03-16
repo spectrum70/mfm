@@ -140,15 +140,21 @@ void table_locations::load_disks()
 
 	script = "df";
 	FILE *fp = popen(script.c_str(), "r");
+	if (!fp)
+		return;
+
 	vector<string> mounted;
 	for (int i = 0; fgets(s, sizeof(s) - 1, fp); i++ ) {
 		string entry = s;
 		mounted.push_back(s);
 	}
-	fclose(fp);
+	pclose(fp);
 
 	script = "awk -F\" \" '{print $4}' /proc/partitions";
 	fp = popen(script.c_str(), "r");
+	if (!fp)
+		return;
+
 	for (int i = 0; fgets(s, sizeof(s) - 1, fp); i++ ) {
 		string q, entry = s;
 		if (entry[entry.size() - 1] == '\n')
@@ -174,7 +180,7 @@ void table_locations::load_disks()
 		}
 		locations.push_back(loc_path(s, q));
 	}
-	fclose(fp);
+	pclose(fp);
 
 	rows((int)locations.size());
 
